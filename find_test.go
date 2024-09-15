@@ -86,3 +86,13 @@ func TestMaxPar(t *testing.T) {
 		})
 	}
 }
+
+func TestMaxByPar(t *testing.T) {
+	for threads := 1; threads < MAX_THREADS; threads++ {
+		test(t, "max", slices.Max[Elems, Elem], func(slice Elems) Elem {
+			return parlo.MaxByPar(slice, func(a, b Elem) bool {
+				return a > b
+			}, threads)
+		})
+	}
+}

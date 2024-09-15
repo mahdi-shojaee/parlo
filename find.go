@@ -158,3 +158,27 @@ func MaxPar[S ~[]E, E constraints.Ordered](slice S, threads int) E {
 
 	return Max(result)
 }
+
+// MaxByPar finds the maximum value in a slice using the specified number
+// of threads, based on a custom comparison function.
+//
+// If multiple values in the slice are equal to the maximum, the first one is returned.
+// Returns the zero value of the element type if the slice is empty.
+//
+// The `gt` function should return true if `a` is greater than `b`.
+func MaxByPar[S ~[]E, E any](slice S, gt func(a, b E) bool, threads int) E {
+	// Less than MIN_LEN, single thread is faster.
+	const minLen = 200_000
+
+	if len(slice) <= minLen {
+		return MaxBy(slice, gt)
+	}
+
+	cb := func(s S, _, _ int) E {
+		return MaxBy(s, gt)
+	}
+
+	result := do(slice, cb, threads)
+
+	return MaxBy(result, gt)
+}
