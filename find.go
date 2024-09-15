@@ -92,3 +92,25 @@ func MinByPar[S ~[]E, E any](slice S, lt func(a, b E) bool, threads int) E {
 
 	return MinBy(result, lt)
 }
+
+// Max searches for the maximum value in a slice.
+//
+// If multiple values share the maximum value, the first one is returned.
+// Returns the zero value if the slice is empty.
+func Max[S ~[]E, E constraints.Ordered](slice S) E {
+	var max E
+
+	if len(slice) == 0 {
+		return max
+	}
+
+	max = slice[0]
+
+	for _, v := range slice[1:] {
+		if v > max {
+			max = v
+		}
+	}
+
+	return max
+}

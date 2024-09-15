@@ -64,3 +64,9 @@ func TestMinByPar(t *testing.T) {
 		})
 	}
 }
+
+func TestMax(t *testing.T) {
+	test(t, "max", slices.Max[Elems, Elem], func(slice Elems) Elem {
+		return parlo.Max(slice)
+	})
+}
