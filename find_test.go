@@ -70,3 +70,11 @@ func TestMax(t *testing.T) {
 		return parlo.Max(slice)
 	})
 }
+
+func TestMaxBy(t *testing.T) {
+	test(t, "max", slices.Max[Elems, Elem], func(slice Elems) Elem {
+		return parlo.MaxBy(slice, func(a, b Elem) bool {
+			return a > b
+		})
+	})
+}
