@@ -38,3 +38,11 @@ func TestMin(t *testing.T) {
 		return parlo.Min(slice)
 	})
 }
+
+func TestMinBy(t *testing.T) {
+	test(t, "min", slices.Min[Elems, Elem], func(slice Elems) Elem {
+		return parlo.MinBy(slice, func(a, b Elem) bool {
+			return a < b
+		})
+	})
+}
