@@ -69,3 +69,26 @@ func MinPar[S ~[]E, E constraints.Ordered](slice S, threads int) E {
 
 	return Min(result)
 }
+
+// MinByPar finds the minimum value in a slice using the specified number
+// of threads, using a custom less-than function. The minimum value found across
+// all chunks is returned.
+//
+// If multiple values in the slice are equal to the minimum, the first one is returned.
+// Returns the zero value of the element type if the slice is empty.
+func MinByPar[S ~[]E, E any](slice S, lt func(a, b E) bool, threads int) E {
+	// Less than MIN_LEN, single thread is faster.
+	const minLen = 200_000
+
+	if len(slice) <= minLen {
+		return MinBy(slice, lt)
+	}
+
+	cb := func(s S, _, _ int) E {
+		return MinBy(s, lt)
+	}
+
+	result := do(slice, cb, threads)
+
+	return MinBy(result, lt)
+}

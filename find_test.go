@@ -54,3 +54,13 @@ func TestMinPar(t *testing.T) {
 		})
 	}
 }
+
+func TestMinByPar(t *testing.T) {
+	for threads := 1; threads < MAX_THREADS; threads++ {
+		test(t, "min", slices.Min[Elems, Elem], func(slice Elems) Elem {
+			return parlo.MinByPar(slice, func(a, b Elem) bool {
+				return a < b
+			}, threads)
+		})
+	}
+}
