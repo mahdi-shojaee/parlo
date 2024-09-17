@@ -48,7 +48,7 @@ func TestMinBy(t *testing.T) {
 }
 
 func TestMinPar(t *testing.T) {
-	for numThreads := 1; numThreads < MAX_THREADS; numThreads++ {
+	for numThreads := 0; numThreads < MAX_THREADS; numThreads++ {
 		test(t, "min", slices.Min[Elems, Elem], func(slice Elems) Elem {
 			return parlo.ParMin(slice, numThreads)
 		})
@@ -56,7 +56,7 @@ func TestMinPar(t *testing.T) {
 }
 
 func TestMinByPar(t *testing.T) {
-	for numThreads := 1; numThreads < MAX_THREADS; numThreads++ {
+	for numThreads := 0; numThreads < MAX_THREADS; numThreads++ {
 		test(t, "min", slices.Min[Elems, Elem], func(slice Elems) Elem {
 			return parlo.ParMinBy(slice, numThreads, func(a, b Elem) bool {
 				return a < b
@@ -80,7 +80,7 @@ func TestMaxBy(t *testing.T) {
 }
 
 func TestMaxPar(t *testing.T) {
-	for numThreads := 1; numThreads < MAX_THREADS; numThreads++ {
+	for numThreads := 0; numThreads < MAX_THREADS; numThreads++ {
 		test(t, "max", slices.Max[Elems, Elem], func(slice Elems) Elem {
 			return parlo.ParMax(slice, numThreads)
 		})
@@ -88,11 +88,27 @@ func TestMaxPar(t *testing.T) {
 }
 
 func TestMaxByPar(t *testing.T) {
-	for numThreads := 1; numThreads < MAX_THREADS; numThreads++ {
+	for numThreads := 0; numThreads < MAX_THREADS; numThreads++ {
 		test(t, "max", slices.Max[Elems, Elem], func(slice Elems) Elem {
 			return parlo.ParMaxBy(slice, numThreads, func(a, b Elem) bool {
 				return a > b
 			})
 		})
 	}
+}
+
+func TestFind(t *testing.T) {
+	slice := []int{2, 1, 8, 3}
+
+	t.Run("should find correct value", func(t *testing.T) {
+		actual, ok := parlo.Find(slice, func(n int) bool { return n == 8 })
+		assert.Equal(t, 8, actual)
+		assert.Equal(t, true, ok)
+	})
+
+	t.Run("should find correct value", func(t *testing.T) {
+		actual, ok := parlo.Find(slice, func(n int) bool { return n == 5 })
+		assert.Equal(t, 0, actual)
+		assert.Equal(t, false, ok)
+	})
 }

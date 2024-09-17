@@ -2,6 +2,7 @@ package parlo
 
 import (
 	"github.com/mahdi-shojaee/parlo/internal/constraints"
+	"github.com/mahdi-shojaee/parlo/internal/utils"
 )
 
 // Min searches for the minimum value in a slice.
@@ -53,8 +54,11 @@ func MinBy[S ~[]E, E any](slice S, lt func(a, b E) bool) E {
 //
 // If multiple values in the slice are equal to the minimum, the first one is returned.
 // Returns the zero value of the element type if the slice is empty.
+//
+// For slices with length less than `minLen`, single-threaded processing might be faster
+// due to overhead associated with parallel execution.
 func ParMin[S ~[]E, E constraints.Ordered](slice S, numThreads int) E {
-	// Less than MIN_LEN, single thread is faster.
+	// For slices with length less than `minLen`, single-threaded processing might be faster
 	const minLen = 200_000
 
 	if len(slice) <= minLen {
@@ -65,7 +69,7 @@ func ParMin[S ~[]E, E constraints.Ordered](slice S, numThreads int) E {
 		return Min(s)
 	}
 
-	result := do(slice, cb, numThreads)
+	result := do(slice, cb, utils.NumThreads(numThreads))
 
 	return Min(result)
 }
@@ -76,8 +80,11 @@ func ParMin[S ~[]E, E constraints.Ordered](slice S, numThreads int) E {
 //
 // If multiple values in the slice are equal to the minimum, the first one is returned.
 // Returns the zero value of the element type if the slice is empty.
+//
+// For slices with length less than `minLen`, single-threaded processing might be faster
+// due to overhead associated with parallel execution.
 func ParMinBy[S ~[]E, E any](slice S, numThreads int, lt func(a, b E) bool) E {
-	// Less than MIN_LEN, single thread is faster.
+	// For slices with length less than `minLen`, single-threaded processing might be faster
 	const minLen = 200_000
 
 	if len(slice) <= minLen {
@@ -88,7 +95,7 @@ func ParMinBy[S ~[]E, E any](slice S, numThreads int, lt func(a, b E) bool) E {
 		return MinBy(s, lt)
 	}
 
-	result := do(slice, cb, numThreads)
+	result := do(slice, cb, utils.NumThreads(numThreads))
 
 	return MinBy(result, lt)
 }
@@ -142,8 +149,11 @@ func MaxBy[S ~[]E, E any](slice S, gt func(a, b E) bool) E {
 //
 // If multiple values in the slice are equal to the maximum, the first one is returned.
 // Returns the zero value of the element type if the slice is empty.
+//
+// For slices with length less than `minLen`, single-threaded processing might be faster
+// due to overhead associated with parallel execution.
 func ParMax[S ~[]E, E constraints.Ordered](slice S, numThreads int) E {
-	// Less than MIN_LEN, single thread is faster.
+	// For slices with length less than `minLen`, single-threaded processing might be faster
 	const minLen = 200_000
 
 	if len(slice) <= minLen {
@@ -154,7 +164,7 @@ func ParMax[S ~[]E, E constraints.Ordered](slice S, numThreads int) E {
 		return Max(s)
 	}
 
-	result := do(slice, cb, numThreads)
+	result := do(slice, cb, utils.NumThreads(numThreads))
 
 	return Max(result)
 }
@@ -166,8 +176,11 @@ func ParMax[S ~[]E, E constraints.Ordered](slice S, numThreads int) E {
 // Returns the zero value of the element type if the slice is empty.
 //
 // The `gt` function should return true if `a` is greater than `b`.
+//
+// For slices with length less than `minLen`, single-threaded processing might be faster
+// due to overhead associated with parallel execution.
 func ParMaxBy[S ~[]E, E any](slice S, numThreads int, gt func(a, b E) bool) E {
-	// Less than MIN_LEN, single thread is faster.
+	// For slices with length less than `minLen`, single-threaded processing might be faster
 	const minLen = 200_000
 
 	if len(slice) <= minLen {
@@ -178,7 +191,20 @@ func ParMaxBy[S ~[]E, E any](slice S, numThreads int, gt func(a, b E) bool) E {
 		return MaxBy(s, gt)
 	}
 
-	result := do(slice, cb, numThreads)
+	result := do(slice, cb, utils.NumThreads(numThreads))
 
 	return MaxBy(result, gt)
+}
+
+// Find returns the first item in the collection that satisfies the predicate.
+// If no item is found, the second return value is false.
+func Find[E any](slice []E, predicate func(item E) bool) (E, bool) {
+	for i := range slice {
+		if predicate(slice[i]) {
+			return slice[i], true
+		}
+	}
+
+	var result E
+	return result, false
 }
