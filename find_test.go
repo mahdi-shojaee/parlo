@@ -50,7 +50,7 @@ func TestMinBy(t *testing.T) {
 func TestMinPar(t *testing.T) {
 	for threads := 1; threads < MAX_THREADS; threads++ {
 		test(t, "min", slices.Min[Elems, Elem], func(slice Elems) Elem {
-			return parlo.MinPar(slice, threads)
+			return parlo.ParMin(slice, threads)
 		})
 	}
 }
@@ -58,7 +58,7 @@ func TestMinPar(t *testing.T) {
 func TestMinByPar(t *testing.T) {
 	for threads := 1; threads < MAX_THREADS; threads++ {
 		test(t, "min", slices.Min[Elems, Elem], func(slice Elems) Elem {
-			return parlo.MinByPar(slice, func(a, b Elem) bool {
+			return parlo.ParMinBy(slice, func(a, b Elem) bool {
 				return a < b
 			}, threads)
 		})
@@ -82,7 +82,7 @@ func TestMaxBy(t *testing.T) {
 func TestMaxPar(t *testing.T) {
 	for threads := 1; threads < MAX_THREADS; threads++ {
 		test(t, "max", slices.Max[Elems, Elem], func(slice Elems) Elem {
-			return parlo.MaxPar(slice, threads)
+			return parlo.ParMax(slice, threads)
 		})
 	}
 }
@@ -90,7 +90,7 @@ func TestMaxPar(t *testing.T) {
 func TestMaxByPar(t *testing.T) {
 	for threads := 1; threads < MAX_THREADS; threads++ {
 		test(t, "max", slices.Max[Elems, Elem], func(slice Elems) Elem {
-			return parlo.MaxByPar(slice, func(a, b Elem) bool {
+			return parlo.ParMaxBy(slice, func(a, b Elem) bool {
 				return a > b
 			}, threads)
 		})

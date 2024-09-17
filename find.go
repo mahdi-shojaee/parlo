@@ -48,12 +48,12 @@ func MinBy[S ~[]E, E any](slice S, lt func(a, b E) bool) E {
 	return min
 }
 
-// MinPar finds the minimum value in a slice using the specified number
+// ParMin finds the minimum value in a slice using the specified number
 // of threads. The minimum value found across all chunks is returned.
 //
 // If multiple values in the slice are equal to the minimum, the first one is returned.
 // Returns the zero value of the element type if the slice is empty.
-func MinPar[S ~[]E, E constraints.Ordered](slice S, threads int) E {
+func ParMin[S ~[]E, E constraints.Ordered](slice S, threads int) E {
 	// Less than MIN_LEN, single thread is faster.
 	const minLen = 200_000
 
@@ -70,13 +70,13 @@ func MinPar[S ~[]E, E constraints.Ordered](slice S, threads int) E {
 	return Min(result)
 }
 
-// MinByPar finds the minimum value in a slice using the specified number
+// ParMinBy finds the minimum value in a slice using the specified number
 // of threads, using a custom less-than function. The minimum value found across
 // all chunks is returned.
 //
 // If multiple values in the slice are equal to the minimum, the first one is returned.
 // Returns the zero value of the element type if the slice is empty.
-func MinByPar[S ~[]E, E any](slice S, lt func(a, b E) bool, threads int) E {
+func ParMinBy[S ~[]E, E any](slice S, lt func(a, b E) bool, threads int) E {
 	// Less than MIN_LEN, single thread is faster.
 	const minLen = 200_000
 
@@ -137,12 +137,12 @@ func MaxBy[S ~[]E, E any](slice S, gt func(a, b E) bool) E {
 	return max
 }
 
-// MaxPar finds the maximum value in a slice using the specified number of threads.
+// ParMax finds the maximum value in a slice using the specified number of threads.
 // The maximum value found across all chunks is returned.
 //
 // If multiple values in the slice are equal to the maximum, the first one is returned.
 // Returns the zero value of the element type if the slice is empty.
-func MaxPar[S ~[]E, E constraints.Ordered](slice S, threads int) E {
+func ParMax[S ~[]E, E constraints.Ordered](slice S, threads int) E {
 	// Less than MIN_LEN, single thread is faster.
 	const minLen = 200_000
 
@@ -159,14 +159,14 @@ func MaxPar[S ~[]E, E constraints.Ordered](slice S, threads int) E {
 	return Max(result)
 }
 
-// MaxByPar finds the maximum value in a slice using the specified number
+// ParMaxBy finds the maximum value in a slice using the specified number
 // of threads, based on a custom comparison function.
 //
 // If multiple values in the slice are equal to the maximum, the first one is returned.
 // Returns the zero value of the element type if the slice is empty.
 //
 // The `gt` function should return true if `a` is greater than `b`.
-func MaxByPar[S ~[]E, E any](slice S, gt func(a, b E) bool, threads int) E {
+func ParMaxBy[S ~[]E, E any](slice S, gt func(a, b E) bool, threads int) E {
 	// Less than MIN_LEN, single thread is faster.
 	const minLen = 200_000
 
