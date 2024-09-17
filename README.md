@@ -33,14 +33,13 @@ import (
 func main() {
   data := []int{1, 2, 3, 4, 5}
 
-  // Sequential filtering
-  filtered := parlo.Filter(data, func(i int) bool { return i % 2 == 0 })
+  // Sequential Max
+  max := parlo.Max(data)
+  fmt.Println("Sequential:", max)
 
-  // Parallel filtering with 4 CPUs
-  parallelFiltered := parlo.ParFilter(data, 4, func(i int) bool { return i % 2 == 0 })
-
-  fmt.Println("Sequential:", filtered)
-  fmt.Println("Parallel:", parallelFiltered)
+  // Parallel Max with 4 CPUs
+  max = parlo.ParMax(data, 4)
+  fmt.Println("Parallel:", max)
 }
 ```
 ### Parallelism Control
@@ -63,19 +62,13 @@ This provides flexibility depending on the workload and environment:
 
 ```go
 // Automatically use all available CPU cores
-result := parlo.ParMap(data, 0, func(n int) int {
-    return n * n
-})
+max := parlo.ParMax(data, 0)
 
 // Specify the number of threads (e.g., 4 threads)
-result := parlo.ParMap(data, 4, func(n int) int {
-    return n * n
-})
+max := parlo.ParMax(data, 4)
 
 // Use a single thread in a new goroutine (asynchronous, but not parallel)
-result := parlo.ParMap(data, 1, func(n int) int {
-    return n * n
-})
+max := parlo.ParMax(data, 1)
 ```
 
 ### Contributing:
