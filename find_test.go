@@ -112,3 +112,21 @@ func TestFind(t *testing.T) {
 		assert.Equal(t, false, ok)
 	})
 }
+
+func TestParFind(t *testing.T) {
+	slice := []int{2, 1, 8, 3}
+
+	for numThreads := 0; numThreads < MAX_THREADS; numThreads++ {
+		t.Run("should find correct value", func(t *testing.T) {
+			actual, ok := parlo.ParFind(slice, numThreads, func(n int) bool { return n == 8 })
+			assert.Equal(t, 8, actual)
+			assert.Equal(t, true, ok)
+		})
+
+		t.Run("should find correct value", func(t *testing.T) {
+			actual, ok := parlo.ParFind(slice, numThreads, func(n int) bool { return n == 5 })
+			assert.Equal(t, 0, actual)
+			assert.Equal(t, false, ok)
+		})
+	}
+}

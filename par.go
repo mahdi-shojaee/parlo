@@ -1,20 +1,17 @@
 package parlo
 
 import (
-	"runtime"
 	"sync"
+
+	"github.com/mahdi-shojaee/parlo/internal/utils"
 )
 
 func do[S ~[]E, E, R any](
 	collection S,
 	cb func(chunk S, index int, chunkStartIndex int) R,
-	threads int,
+	numThreads int,
 ) []R {
-	numCPU := runtime.NumCPU()
-
-	if threads == 0 || threads > numCPU {
-		threads = numCPU
-	}
+	threads := utils.NumThreads(numThreads)
 
 	if len(collection) < threads {
 		return []R{cb(collection, 0, 0)}

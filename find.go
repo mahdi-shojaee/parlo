@@ -1,6 +1,8 @@
 package parlo
 
 import (
+	"sync/atomic"
+
 	"github.com/mahdi-shojaee/parlo/internal/constraints"
 	"github.com/mahdi-shojaee/parlo/internal/utils"
 )
@@ -207,4 +209,59 @@ func Find[E any](slice []E, predicate func(item E) bool) (E, bool) {
 
 	var result E
 	return result, false
+}
+
+// ParFind finds the first element in the collection that satisfies the predicate.
+// If no element satisfies the predicate, a zero value of the element type and false are returned.
+//
+// The numThreads parameter specifies the number of threads to use for the search.
+// If numThreads is less than or equal to 0, the number of available CPU cores is used.
+//
+// For slices with length less than `minLen`, single-threaded processing might be faster
+// due to overhead associated with parallel execution.
+func ParFind[E any](slice []E, numThreads int, predicate func(item E) bool) (E, bool) {
+	// For slices with length less than `minLen`, single-threaded processing might be faster
+	const minLen = 200_000
+
+	if len(slice) <= minLen {
+		return Find(slice, predicate)
+	}
+
+	type ChunkResult struct {
+		value E
+		ok    bool
+	}
+
+	var end atomic.Uint64
+	end.Store(0)
+
+	cb := func(chunk []E, index int, chunkStartIndex int) ChunkResult {
+		value, ok := func() (E, bool) {
+			for _, v := range chunk {
+				if end.Load()>>(64-index) != 0 {
+					// Found by prev chunks
+					var result E
+					return result, false
+				}
+				if predicate(v) {
+					// Found, So set the related bit in flag
+					end.Add(1 << (63 - index))
+					return v, true
+				}
+			}
+
+			var result E
+			return result, false
+		}()
+
+		return ChunkResult{value, ok}
+	}
+
+	results := do(slice, cb, utils.NumThreads(numThreads))
+
+	r, ok := Find(results, func(r ChunkResult) bool {
+		return r.ok
+	})
+
+	return r.value, ok
 }
