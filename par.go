@@ -8,8 +8,8 @@ import (
 
 func do[S ~[]E, E, R any](
 	collection S,
-	cb func(chunk S, index int, chunkStartIndex int) R,
 	numThreads int,
+	cb func(chunk S, index int, chunkStartIndex int) R,
 ) []R {
 	threads := utils.NumThreads(numThreads)
 
