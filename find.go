@@ -7,10 +7,8 @@ import (
 	"github.com/mahdi-shojaee/parlo/internal/utils"
 )
 
-// Min searches for the minimum value in a slice.
-//
-// If multiple values share the minimum value, the first encountered one is returned.
-// Returns the zero value if the slice is empty.
+// Min returns the smallest element in the slice.
+// If the slice is empty, it returns the zero value of type E.
 func Min[S ~[]E, E constraints.Ordered](slice S) E {
 	var min E
 
@@ -29,10 +27,10 @@ func Min[S ~[]E, E constraints.Ordered](slice S) E {
 	return min
 }
 
-// MinBy finds the minimum value of a slice using the given comparison function.
-//
-// If multiple values in the slice are equal to the minimum, the first one is returned.
-// Returns the zero value of the element type if the slice is empty.
+// MinBy returns the smallest element in the slice based on the provided comparison function.
+// If the slice is empty, it returns the zero value of type E.
+// The lt function should return true if a is considered less than b.
+// If several values of the slice are equal to the smallest value, it returns the first such value.
 func MinBy[S ~[]E, E any](slice S, lt func(a, b E) bool) E {
 	var min E
 
@@ -51,16 +49,10 @@ func MinBy[S ~[]E, E any](slice S, lt func(a, b E) bool) E {
 	return min
 }
 
-// ParMin finds the minimum value in a slice using the specified number
-// of threads. The minimum value found across all chunks is returned.
-//
-// If multiple values in the slice are equal to the minimum, the first one is returned.
-// Returns the zero value of the element type if the slice is empty.
-//
-// For slices with length less than `minLen`, single-threaded processing might be faster
-// due to overhead associated with parallel execution.
+// ParMin returns the smallest element in the slice using parallel processing.
+// It uses the specified number of threads for processing.
+// For slices with length less than 200,000, it falls back to the non-parallel Min function.
 func ParMin[S ~[]E, E constraints.Ordered](slice S, numThreads int) E {
-	// For slices with length less than `minLen`, single-threaded processing might be faster
 	const minLen = 200_000
 
 	if len(slice) <= minLen {
@@ -76,17 +68,12 @@ func ParMin[S ~[]E, E constraints.Ordered](slice S, numThreads int) E {
 	return Min(result)
 }
 
-// ParMinBy finds the minimum value in a slice using the specified number
-// of threads, using a custom less-than function. The minimum value found across
-// all chunks is returned.
-//
-// If multiple values in the slice are equal to the minimum, the first one is returned.
-// Returns the zero value of the element type if the slice is empty.
-//
-// For slices with length less than `minLen`, single-threaded processing might be faster
-// due to overhead associated with parallel execution.
+// ParMinBy returns the smallest element in the slice using parallel processing and a custom comparison function.
+// It uses the specified number of threads for processing.
+// For slices with length less than 200,000, it falls back to the non-parallel MinBy function.
+// The lt function should return true if a is considered less than b.
+// If several values of the slice are equal to the smallest value, it returns the first such value.
 func ParMinBy[S ~[]E, E any](slice S, numThreads int, lt func(a, b E) bool) E {
-	// For slices with length less than `minLen`, single-threaded processing might be faster
 	const minLen = 200_000
 
 	if len(slice) <= minLen {
@@ -102,10 +89,8 @@ func ParMinBy[S ~[]E, E any](slice S, numThreads int, lt func(a, b E) bool) E {
 	return MinBy(result, lt)
 }
 
-// Max searches for the maximum value in a slice.
-//
-// If multiple values share the maximum value, the first one is returned.
-// Returns the zero value if the slice is empty.
+// Max returns the largest element in the slice.
+// If the slice is empty, it returns the zero value of type E.
 func Max[S ~[]E, E constraints.Ordered](slice S) E {
 	var max E
 
@@ -124,10 +109,10 @@ func Max[S ~[]E, E constraints.Ordered](slice S) E {
 	return max
 }
 
-// MaxBy finds the maximum value in a slice using the provided comparison function.
-//
-// If multiple values share the maximum value, the first one is returned.
-// Returns the zero value if the slice is empty.
+// MaxBy returns the largest element in the slice based on the provided comparison function.
+// If the slice is empty, it returns the zero value of type E.
+// The gt function should return true if a is considered greater than b.
+// If several values of the slice are equal to the largest value, it returns the first such value.
 func MaxBy[S ~[]E, E any](slice S, gt func(a, b E) bool) E {
 	var max E
 
@@ -146,16 +131,10 @@ func MaxBy[S ~[]E, E any](slice S, gt func(a, b E) bool) E {
 	return max
 }
 
-// ParMax finds the maximum value in a slice using the specified number of threads.
-// The maximum value found across all chunks is returned.
-//
-// If multiple values in the slice are equal to the maximum, the first one is returned.
-// Returns the zero value of the element type if the slice is empty.
-//
-// For slices with length less than `minLen`, single-threaded processing might be faster
-// due to overhead associated with parallel execution.
+// ParMax returns the largest element in the slice using parallel processing.
+// It uses the specified number of threads for processing.
+// For slices with length less than 200,000, it falls back to the non-parallel Max function.
 func ParMax[S ~[]E, E constraints.Ordered](slice S, numThreads int) E {
-	// For slices with length less than `minLen`, single-threaded processing might be faster
 	const minLen = 200_000
 
 	if len(slice) <= minLen {
@@ -171,18 +150,12 @@ func ParMax[S ~[]E, E constraints.Ordered](slice S, numThreads int) E {
 	return Max(result)
 }
 
-// ParMaxBy finds the maximum value in a slice using the specified number
-// of threads, based on a custom comparison function.
-//
-// If multiple values in the slice are equal to the maximum, the first one is returned.
-// Returns the zero value of the element type if the slice is empty.
-//
-// The `gt` function should return true if `a` is greater than `b`.
-//
-// For slices with length less than `minLen`, single-threaded processing might be faster
-// due to overhead associated with parallel execution.
+// ParMaxBy returns the largest element in the slice using parallel processing and a custom comparison function.
+// It uses the specified number of threads for processing.
+// For slices with length less than 200,000, it falls back to the non-parallel MaxBy function.
+// The gt function should return true if a is considered greater than b.
+// If several values of the slice are equal to the largest value, it returns the first such value.
 func ParMaxBy[S ~[]E, E any](slice S, numThreads int, gt func(a, b E) bool) E {
-	// For slices with length less than `minLen`, single-threaded processing might be faster
 	const minLen = 200_000
 
 	if len(slice) <= minLen {
@@ -198,8 +171,8 @@ func ParMaxBy[S ~[]E, E any](slice S, numThreads int, gt func(a, b E) bool) E {
 	return MaxBy(result, gt)
 }
 
-// Find returns the first item in the collection that satisfies the predicate.
-// If no item is found, the second return value is false.
+// Find returns the first element in the slice that satisfies the predicate function.
+// It returns the found element and true if an element is found, otherwise it returns the zero value of E and false.
 func Find[E any](slice []E, predicate func(item E) bool) (E, bool) {
 	for i := range slice {
 		if predicate(slice[i]) {
@@ -211,16 +184,11 @@ func Find[E any](slice []E, predicate func(item E) bool) (E, bool) {
 	return result, false
 }
 
-// ParFind finds the first element in the collection that satisfies the predicate.
-// If no element satisfies the predicate, a zero value of the element type and false are returned.
-//
-// The numThreads parameter specifies the number of threads to use for the search.
-// If numThreads is less than or equal to 0, the number of available CPU cores is used.
-//
-// For slices with length less than `minLen`, single-threaded processing might be faster
-// due to overhead associated with parallel execution.
+// ParFind returns the first element in the slice that satisfies the predicate function using parallel processing.
+// It uses the specified number of threads for processing.
+// For slices with length less than 200,000, it falls back to the non-parallel Find function.
+// It returns the found element and true if an element is found, otherwise it returns the zero value of E and false.
 func ParFind[E any](slice []E, numThreads int, predicate func(item E) bool) (E, bool) {
-	// For slices with length less than `minLen`, single-threaded processing might be faster
 	const minLen = 200_000
 
 	if len(slice) <= minLen {
