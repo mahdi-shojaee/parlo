@@ -6,10 +6,10 @@ import (
 	"github.com/mahdi-shojaee/parlo/internal/utils"
 )
 
-func do[S ~[]E, E, R any](
+func Do[S ~[]E, E, R any](
 	collection S,
 	numThreads int,
-	cb func(chunk S, index int, chunkStartIndex int) R,
+	cb func(chunk S, index, chunkStartIndex int) R,
 ) []R {
 	threads := utils.NumThreads(numThreads)
 
@@ -33,7 +33,7 @@ func do[S ~[]E, E, R any](
 		}
 
 		chunk := s[:endIndex]
-		go func(chunk S, index int, chunkStartIndex int) {
+		go func(chunk S, index, chunkStartIndex int) {
 			result[index] = cb(chunk, index, chunkStartIndex)
 			wg.Done()
 		}(chunk, i, len(collection)-len(s))

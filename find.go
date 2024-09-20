@@ -59,7 +59,7 @@ func ParMin[S ~[]E, E constraints.Ordered](slice S, numThreads int) E {
 		return Min(slice)
 	}
 
-	result := do(slice, utils.NumThreads(numThreads), func(s S, _, _ int) E {
+	result := Do(slice, utils.NumThreads(numThreads), func(s S, _, _ int) E {
 		return Min(s)
 	})
 
@@ -78,7 +78,7 @@ func ParMinBy[S ~[]E, E any](slice S, numThreads int, lt func(a, b E) bool) E {
 		return MinBy(slice, lt)
 	}
 
-	result := do(slice, utils.NumThreads(numThreads), func(s S, _, _ int) E {
+	result := Do(slice, utils.NumThreads(numThreads), func(s S, _, _ int) E {
 		return MinBy(s, lt)
 	})
 
@@ -137,7 +137,7 @@ func ParMax[S ~[]E, E constraints.Ordered](slice S, numThreads int) E {
 		return Max(slice)
 	}
 
-	result := do(slice, utils.NumThreads(numThreads), func(s S, _, _ int) E {
+	result := Do(slice, utils.NumThreads(numThreads), func(s S, _, _ int) E {
 		return Max(s)
 	})
 
@@ -156,7 +156,7 @@ func ParMaxBy[S ~[]E, E any](slice S, numThreads int, gt func(a, b E) bool) E {
 		return MaxBy(slice, gt)
 	}
 
-	result := do(slice, utils.NumThreads(numThreads), func(s S, _, _ int) E {
+	result := Do(slice, utils.NumThreads(numThreads), func(s S, _, _ int) E {
 		return MaxBy(s, gt)
 	})
 
@@ -195,7 +195,7 @@ func ParFind[E any](slice []E, numThreads int, predicate func(item E) bool) (E, 
 	var end atomic.Uint64
 	end.Store(0)
 
-	results := do(slice, utils.NumThreads(numThreads), func(chunk []E, index int, chunkStartIndex int) ChunkResult {
+	results := Do(slice, utils.NumThreads(numThreads), func(chunk []E, index int, chunkStartIndex int) ChunkResult {
 		value, ok := func() (E, bool) {
 			for _, v := range chunk {
 				if end.Load()>>(64-index) != 0 {
