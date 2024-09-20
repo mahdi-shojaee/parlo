@@ -69,12 +69,12 @@ func MakeSemiSortedCollection(size int) Elems {
 	return slice
 }
 
-func Split[T any, S ~[]T](collection []T, chunksNo int) []S {
+func Split[S ~[]E, E any](slice []E, chunksNo int) []S {
 	chunks := make([]S, chunksNo)
 
-	chunkSize := len(collection) / chunksNo
+	chunkSize := len(slice) / chunksNo
 
-	s := collection
+	s := slice
 
 	for i := 0; i < chunksNo; i++ {
 		endIndex := chunkSize
