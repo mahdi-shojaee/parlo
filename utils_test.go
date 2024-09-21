@@ -48,18 +48,11 @@ func InitializePar[T any](slice []T, create func(n int) T) {
 	wg.Wait()
 }
 
-func MakeCollection(size int, newElem func(n int) Elem) Elems {
-	list := make(Elems, size)
-	InitializePar(list, newElem)
-	return list
-}
+func MakeCollection(size int, randomness float32, newElem func(index int) Elem) Elems {
+	slice := make(Elems, size)
+	InitializePar(slice, newElem)
 
-func MakeSemiSortedCollection(size int) Elems {
-	slice := MakeCollection(size, func(n int) Elem {
-		return Elem(n)
-	})
-
-	numSwaps := int(0.1 * float32(size))
+	numSwaps := int(randomness * float32(size))
 	for i := 0; i < numSwaps; i++ {
 		j := rand.IntN(size)
 		k := rand.IntN(size)
