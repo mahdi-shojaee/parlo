@@ -9,7 +9,7 @@ Parlo is a Go library that provides utility functions for efficiently working wi
 
 ### Current Features:
 
-* **Slices:** Sequential and parallel versions of `Find`, `Min`, `Max`, etc.
+* **Slices:** Sequential and parallel versions of `Find`, `Min`, `Max`, `Filter`, etc.
 
 **(Note: The list of features is subject to change based on development progress.)**
 
@@ -37,8 +37,8 @@ func main() {
   max := parlo.Max(data)
   fmt.Println("Sequential:", max)
 
-  // Parallel Max with 4 CPUs
-  max = parlo.ParMax(data, 4)
+  // Parallel Max
+  max = parlo.ParMax(data)
   fmt.Println("Parallel:", max)
 }
 ```
@@ -46,30 +46,12 @@ func main() {
 
 All parallel versions of functions are prefixed with `Par`, indicating they utilize multi-core processing for better performance. For example, `ParMap`, `ParFilter`, and `ParSort` are the parallel counterparts of their sequential versions.
 
-#### `numThreads` Argument
+#### Automatic Parallelism
 
-Each parallel function accepts a `numThreads` argument, which controls the degree of parallelism:
+Parlo's parallel functions now automatically manage the degree of parallelism internally. This simplifies the API and ensures optimal performance without requiring manual thread configuration.
 
-- **`numThreads == 0` or a negative number**: Automatically uses all available CPU cores, determined by calling `runtime.NumCPU()`, for **maximum performance**.
-- **`numThreads == 1`**: The function runs in a **separate goroutine**, allowing asynchronous execution without parallelism.
-- **`numThreads > 1`**: Manually specify the exact number of threads, offering more granular control over CPU usage.
-
-This provides flexibility depending on the workload and environment:
-- By default (with `numThreads == 0`), functions will use all available CPU cores.
-- Users can specify `numThreads` based on their performance goals or system constraints.
-
-#### Example Usage:
-
-```go
-// Automatically use all available CPU cores
-max := parlo.ParMax(data, 0)
-
-// Specify the number of threads (e.g., 4 threads)
-max := parlo.ParMax(data, 4)
-
-// Use a single thread in a new goroutine (asynchronous, but not parallel)
-max := parlo.ParMax(data, 1)
-```
+- For small datasets (typically less than 200,000 elements), the functions fall back to their sequential counterparts to avoid the overhead of parallelization.
+- For larger datasets, the functions utilize parallel processing to improve performance.
 
 ### Contributing:
 

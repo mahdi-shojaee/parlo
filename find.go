@@ -4,7 +4,6 @@ import (
 	"sync/atomic"
 
 	"github.com/mahdi-shojaee/parlo/internal/constraints"
-	"github.com/mahdi-shojaee/parlo/internal/utils"
 )
 
 // Min returns the smallest element in the slice.
@@ -50,16 +49,15 @@ func MinBy[S ~[]E, E any](slice S, lt func(a, b E) bool) E {
 }
 
 // ParMin returns the smallest element in the slice using parallel processing.
-// It uses the specified number of threads for processing.
 // For slices with length less than 200,000, it falls back to the non-parallel Min function.
-func ParMin[S ~[]E, E constraints.Ordered](slice S, numThreads int) E {
+func ParMin[S ~[]E, E constraints.Ordered](slice S) E {
 	const minLen = 200_000
 
 	if len(slice) <= minLen {
 		return Min(slice)
 	}
 
-	result := Do(slice, utils.NumThreads(numThreads), func(s S, _, _ int) E {
+	result := Do(slice, 0, func(s S, _, _ int) E {
 		return Min(s)
 	})
 
@@ -67,18 +65,17 @@ func ParMin[S ~[]E, E constraints.Ordered](slice S, numThreads int) E {
 }
 
 // ParMinBy returns the smallest element in the slice using parallel processing and a custom comparison function.
-// It uses the specified number of threads for processing.
 // For slices with length less than 200,000, it falls back to the non-parallel MinBy function.
 // The lt function should return true if a is considered less than b.
 // If several values of the slice are equal to the smallest value, it returns the first such value.
-func ParMinBy[S ~[]E, E any](slice S, numThreads int, lt func(a, b E) bool) E {
+func ParMinBy[S ~[]E, E any](slice S, lt func(a, b E) bool) E {
 	const minLen = 200_000
 
 	if len(slice) <= minLen {
 		return MinBy(slice, lt)
 	}
 
-	result := Do(slice, utils.NumThreads(numThreads), func(s S, _, _ int) E {
+	result := Do(slice, 0, func(s S, _, _ int) E {
 		return MinBy(s, lt)
 	})
 
@@ -128,16 +125,15 @@ func MaxBy[S ~[]E, E any](slice S, gt func(a, b E) bool) E {
 }
 
 // ParMax returns the largest element in the slice using parallel processing.
-// It uses the specified number of threads for processing.
 // For slices with length less than 200,000, it falls back to the non-parallel Max function.
-func ParMax[S ~[]E, E constraints.Ordered](slice S, numThreads int) E {
+func ParMax[S ~[]E, E constraints.Ordered](slice S) E {
 	const minLen = 200_000
 
 	if len(slice) <= minLen {
 		return Max(slice)
 	}
 
-	result := Do(slice, utils.NumThreads(numThreads), func(s S, _, _ int) E {
+	result := Do(slice, 0, func(s S, _, _ int) E {
 		return Max(s)
 	})
 
@@ -145,18 +141,17 @@ func ParMax[S ~[]E, E constraints.Ordered](slice S, numThreads int) E {
 }
 
 // ParMaxBy returns the largest element in the slice using parallel processing and a custom comparison function.
-// It uses the specified number of threads for processing.
 // For slices with length less than 200,000, it falls back to the non-parallel MaxBy function.
 // The gt function should return true if a is considered greater than b.
 // If several values of the slice are equal to the largest value, it returns the first such value.
-func ParMaxBy[S ~[]E, E any](slice S, numThreads int, gt func(a, b E) bool) E {
+func ParMaxBy[S ~[]E, E any](slice S, gt func(a, b E) bool) E {
 	const minLen = 200_000
 
 	if len(slice) <= minLen {
 		return MaxBy(slice, gt)
 	}
 
-	result := Do(slice, utils.NumThreads(numThreads), func(s S, _, _ int) E {
+	result := Do(slice, 0, func(s S, _, _ int) E {
 		return MaxBy(s, gt)
 	})
 
@@ -177,10 +172,9 @@ func Find[E any](slice []E, predicate func(item E) bool) (E, bool) {
 }
 
 // ParFind returns the first element in the slice that satisfies the predicate function using parallel processing.
-// It uses the specified number of threads for processing.
 // For slices with length less than 200,000, it falls back to the non-parallel Find function.
 // It returns the found element and true if an element is found, otherwise it returns the zero value of E and false.
-func ParFind[E any](slice []E, numThreads int, predicate func(item E) bool) (E, bool) {
+func ParFind[E any](slice []E, predicate func(item E) bool) (E, bool) {
 	const minLen = 200_000
 
 	if len(slice) <= minLen {
@@ -195,7 +189,7 @@ func ParFind[E any](slice []E, numThreads int, predicate func(item E) bool) (E, 
 	var end atomic.Uint64
 	end.Store(0)
 
-	results := Do(slice, utils.NumThreads(numThreads), func(chunk []E, index int, chunkStartIndex int) ChunkResult {
+	results := Do(slice, 0, func(chunk []E, index int, chunkStartIndex int) ChunkResult {
 		value, ok := func() (E, bool) {
 			for _, v := range chunk {
 				if end.Load()>>(64-index) != 0 {
