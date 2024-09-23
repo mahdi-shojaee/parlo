@@ -1,10 +1,12 @@
 package parlo
 
 import (
+	"sync/atomic"
+
 	"github.com/mahdi-shojaee/parlo/internal/constraints"
 )
 
-type ChunkResult[E any] struct {
+type ParFindChunkResult[E any] struct {
 	value E
 	ok    bool
 }
@@ -154,15 +156,24 @@ func Find[E any](slice []E, predicate func(item E) bool) (E, bool) {
 // It returns the found element and true if an element is found, otherwise it returns the zero value of E and false.
 // Note: ParFind is generally faster than Find for slices with length greater than approximately 1,000,000,000 elements.
 func ParFind[E any](slice []E, predicate func(item E) bool) (E, bool) {
-	results := Do(slice, 0, func(chunk []E, index int, chunkStartIndex int) ChunkResult[E] {
+	var mask uint64 = 0
+
+	results := Do(slice, 0, func(chunk []E, index int, chunkStartIndex int) ParFindChunkResult[E] {
 		for _, v := range chunk {
+			if atomic.LoadUint64(&mask)>>(64-index) != 0 {
+				// Found by prev chunks
+				var zero E
+				return ParFindChunkResult[E]{zero, false}
+			}
 			if predicate(v) {
-				return ChunkResult[E]{v, true}
+				// Found, So set the related bit in flag
+				atomic.AddUint64(&mask, 1<<(63-index))
+				return ParFindChunkResult[E]{v, true}
 			}
 		}
 
 		var result E
-		return ChunkResult[E]{result, false}
+		return ParFindChunkResult[E]{result, false}
 	})
 
 	for _, v := range results {
