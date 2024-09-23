@@ -1,10 +1,13 @@
 package parlo
 
 import (
-	"sync/atomic"
-
 	"github.com/mahdi-shojaee/parlo/internal/constraints"
 )
+
+type ChunkResult[E any] struct {
+	value E
+	ok    bool
+}
 
 // Min returns the smallest element in the slice.
 // If the slice is empty, it returns the zero value of type E.
@@ -49,14 +52,8 @@ func MinBy[S ~[]E, E any](slice S, lt func(a, b E) bool) E {
 }
 
 // ParMin returns the smallest element in the slice using parallel processing.
-// For slices with length less than 200,000, it falls back to the non-parallel Min function.
+// Note: ParMin is generally faster than Min for slices with length greater than approximately 200,000 elements.
 func ParMin[S ~[]E, E constraints.Ordered](slice S) E {
-	const minLen = 200_000
-
-	if len(slice) <= minLen {
-		return Min(slice)
-	}
-
 	result := Do(slice, 0, func(s S, _, _ int) E {
 		return Min(s)
 	})
@@ -65,16 +62,10 @@ func ParMin[S ~[]E, E constraints.Ordered](slice S) E {
 }
 
 // ParMinBy returns the smallest element in the slice using parallel processing and a custom comparison function.
-// For slices with length less than 200,000, it falls back to the non-parallel MinBy function.
 // The lt function should return true if a is considered less than b.
 // If several values of the slice are equal to the smallest value, it returns the first such value.
+// Note: ParMinBy is generally faster than MinBy for slices with length greater than approximately 10,000 elements.
 func ParMinBy[S ~[]E, E any](slice S, lt func(a, b E) bool) E {
-	const minLen = 200_000
-
-	if len(slice) <= minLen {
-		return MinBy(slice, lt)
-	}
-
 	result := Do(slice, 0, func(s S, _, _ int) E {
 		return MinBy(s, lt)
 	})
@@ -125,14 +116,8 @@ func MaxBy[S ~[]E, E any](slice S, gt func(a, b E) bool) E {
 }
 
 // ParMax returns the largest element in the slice using parallel processing.
-// For slices with length less than 200,000, it falls back to the non-parallel Max function.
+// Note: ParMax is generally faster than Max for slices with length greater than approximately 130,000 elements.
 func ParMax[S ~[]E, E constraints.Ordered](slice S) E {
-	const minLen = 200_000
-
-	if len(slice) <= minLen {
-		return Max(slice)
-	}
-
 	result := Do(slice, 0, func(s S, _, _ int) E {
 		return Max(s)
 	})
@@ -141,16 +126,10 @@ func ParMax[S ~[]E, E constraints.Ordered](slice S) E {
 }
 
 // ParMaxBy returns the largest element in the slice using parallel processing and a custom comparison function.
-// For slices with length less than 200,000, it falls back to the non-parallel MaxBy function.
 // The gt function should return true if a is considered greater than b.
 // If several values of the slice are equal to the largest value, it returns the first such value.
+// Note: ParMaxBy is generally faster than MaxBy for slices with length greater than approximately 10,000 elements.
 func ParMaxBy[S ~[]E, E any](slice S, gt func(a, b E) bool) E {
-	const minLen = 200_000
-
-	if len(slice) <= minLen {
-		return MaxBy(slice, gt)
-	}
-
 	result := Do(slice, 0, func(s S, _, _ int) E {
 		return MaxBy(s, gt)
 	})
@@ -161,9 +140,9 @@ func ParMaxBy[S ~[]E, E any](slice S, gt func(a, b E) bool) E {
 // Find returns the first element in the slice that satisfies the predicate function.
 // It returns the found element and true if an element is found, otherwise it returns the zero value of E and false.
 func Find[E any](slice []E, predicate func(item E) bool) (E, bool) {
-	for i := range slice {
-		if predicate(slice[i]) {
-			return slice[i], true
+	for _, x := range slice {
+		if predicate(x) {
+			return x, true
 		}
 	}
 
@@ -172,48 +151,26 @@ func Find[E any](slice []E, predicate func(item E) bool) (E, bool) {
 }
 
 // ParFind returns the first element in the slice that satisfies the predicate function using parallel processing.
-// For slices with length less than 200,000, it falls back to the non-parallel Find function.
 // It returns the found element and true if an element is found, otherwise it returns the zero value of E and false.
+// Note: ParFind is generally faster than Find for slices with length greater than approximately 1,000,000,000 elements.
 func ParFind[E any](slice []E, predicate func(item E) bool) (E, bool) {
-	const minLen = 200_000
-
-	if len(slice) <= minLen {
-		return Find(slice, predicate)
-	}
-
-	type ChunkResult struct {
-		value E
-		ok    bool
-	}
-
-	var end atomic.Uint64
-	end.Store(0)
-
-	results := Do(slice, 0, func(chunk []E, index int, chunkStartIndex int) ChunkResult {
-		value, ok := func() (E, bool) {
-			for _, v := range chunk {
-				if end.Load()>>(64-index) != 0 {
-					// Found by prev chunks
-					var result E
-					return result, false
-				}
-				if predicate(v) {
-					// Found, So set the related bit in flag
-					end.Add(1 << (63 - index))
-					return v, true
-				}
+	results := Do(slice, 0, func(chunk []E, index int, chunkStartIndex int) ChunkResult[E] {
+		for _, v := range chunk {
+			if predicate(v) {
+				return ChunkResult[E]{v, true}
 			}
+		}
 
-			var result E
-			return result, false
-		}()
-
-		return ChunkResult{value, ok}
+		var result E
+		return ChunkResult[E]{result, false}
 	})
 
-	r, ok := Find(results, func(r ChunkResult) bool {
-		return r.ok
-	})
+	for _, v := range results {
+		if v.ok {
+			return v.value, true
+		}
+	}
 
-	return r.value, ok
+	var zero E
+	return zero, false
 }

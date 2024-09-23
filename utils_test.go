@@ -1,9 +1,11 @@
 package parlo_test
 
 import (
-	"math/rand/v2"
+	"math/rand"
 	"runtime"
 	"sync"
+
+	"github.com/mahdi-shojaee/parlo/internal/constraints"
 )
 
 var MAX_THREADS = 8
@@ -54,8 +56,8 @@ func MakeCollection(size int, randomness float32, newElem func(index int) Elem) 
 
 	numSwaps := int(randomness * float32(size))
 	for i := 0; i < numSwaps; i++ {
-		j := rand.IntN(size)
-		k := rand.IntN(size)
+		j := rand.Intn(size)
+		k := rand.Intn(size)
 		slice[j], slice[k] = slice[k], slice[j]
 	}
 
@@ -81,4 +83,76 @@ func Split[S ~[]E, E any](slice []E, chunksNo int) []S {
 	}
 
 	return chunks
+}
+
+func Min[S ~[]E, E constraints.Ordered](slice S) E {
+	var min E
+
+	if len(slice) == 0 {
+		return min
+	}
+
+	min = slice[0]
+
+	for _, v := range slice[1:] {
+		if v < min {
+			min = v
+		}
+	}
+
+	return min
+}
+
+func MinBy[S ~[]E, E any](slice S, lt func(a, b E) bool) E {
+	var min E
+
+	if len(slice) == 0 {
+		return min
+	}
+
+	min = slice[0]
+
+	for _, v := range slice[1:] {
+		if lt(v, min) {
+			min = v
+		}
+	}
+
+	return min
+}
+
+func Max[S ~[]E, E constraints.Ordered](slice S) E {
+	var max E
+
+	if len(slice) == 0 {
+		return max
+	}
+
+	max = slice[0]
+
+	for _, v := range slice[1:] {
+		if v > max {
+			max = v
+		}
+	}
+
+	return max
+}
+
+func MaxBy[S ~[]E, E any](slice S, gt func(a, b E) bool) E {
+	var max E
+
+	if len(slice) == 0 {
+		return max
+	}
+
+	max = slice[0]
+
+	for _, v := range slice[1:] {
+		if gt(v, max) {
+			max = v
+		}
+	}
+
+	return max
 }

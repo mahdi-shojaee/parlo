@@ -20,8 +20,8 @@ func Do[S ~[]E, E, R any](
 ) []R {
 	threads := utils.NumThreads(numThreads)
 
-	if len(slice) < threads {
-		return []R{cb(slice, 0, 0)}
+	if len(slice) <= threads {
+		threads = len(slice)
 	}
 
 	result := make([]R, threads)

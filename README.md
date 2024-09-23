@@ -42,16 +42,9 @@ func main() {
   fmt.Println("Parallel:", max)
 }
 ```
-### Parallelism Control
+### Parallel Functions
 
 All parallel versions of functions are prefixed with `Par`, indicating they utilize multi-core processing for better performance. For example, `ParMap`, `ParFilter`, and `ParSort` are the parallel counterparts of their sequential versions.
-
-#### Automatic Parallelism
-
-Parlo's parallel functions now automatically manage the degree of parallelism internally. This simplifies the API and ensures optimal performance without requiring manual thread configuration.
-
-- For small datasets (typically less than 200,000 elements), the functions fall back to their sequential counterparts to avoid the overhead of parallelization.
-- For larger datasets, the functions utilize parallel processing to improve performance.
 
 ### Contributing:
 
