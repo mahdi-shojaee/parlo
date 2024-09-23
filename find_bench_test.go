@@ -14,12 +14,6 @@ func BenchmarkMinVsParMin(b *testing.B) {
 	for _, size := range sizes {
 		slice := bigSlice[:size]
 
-		// b.Run(fmt.Sprintf("slices.Min-Size%d", size), func(b *testing.B) {
-		// 	for i := 0; i < b.N; i++ {
-		// 		slices.Min(slice)
-		// 	}
-		// })
-
 		b.Run(fmt.Sprintf("parlo.Min-Size%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				parlo.Min(slice)
@@ -42,14 +36,6 @@ func BenchmarkMinByVsParMinBy(b *testing.B) {
 
 	for _, size := range sizes {
 		slice := bigSlice[:size]
-
-		// b.Run(fmt.Sprintf("slices.MinFunc-Size%d", size), func(b *testing.B) {
-		// 	for i := 0; i < b.N; i++ {
-		// 		slices.MinFunc(slice, func(a, b Elem) int {
-		// 			return int(a) - int(b)
-		// 		})
-		// 	}
-		// })
 
 		b.Run(fmt.Sprintf("parlo.MinBy-Size%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
@@ -78,12 +64,6 @@ func BenchmarkMaxVsParMax(b *testing.B) {
 	for _, size := range sizes {
 		slice := bigSlice[:size]
 
-		// b.Run(fmt.Sprintf("slices.Max-Size%d", size), func(b *testing.B) {
-		// 	for i := 0; i < b.N; i++ {
-		// 		slices.Max(slice)
-		// 	}
-		// })
-
 		b.Run(fmt.Sprintf("parlo.Max-Size%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				parlo.Max(slice)
@@ -106,14 +86,6 @@ func BenchmarkMaxByVsParMaxBy(b *testing.B) {
 
 	for _, size := range sizes {
 		slice := bigSlice[:size]
-
-		// b.Run(fmt.Sprintf("slices.MaxFunc-Size%d", size), func(b *testing.B) {
-		// 	for i := 0; i < b.N; i++ {
-		// 		slices.MaxFunc(slice, func(a, b Elem) int {
-		// 			return int(a) - int(b)
-		// 		})
-		// 	}
-		// })
 
 		b.Run(fmt.Sprintf("parlo.MaxBy-Size%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
