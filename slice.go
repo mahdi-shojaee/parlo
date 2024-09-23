@@ -78,7 +78,7 @@ func IsSorted[S ~[]E, E constraints.Ordered](slice S) bool {
 // IsSortedBy checks if the input slice is sorted according to the provided comparison function.
 // The gt function should return true if a is considered greater than b.
 // It returns true if the slice is sorted, false otherwise.
-func IsSortedBy[S ~[]E, E constraints.Ordered](slice S, gt func(a, b E) bool) bool {
+func IsSortedBy[S ~[]E, E any](slice S, gt func(a, b E) bool) bool {
 	if len(slice) <= 1 {
 		return true
 	}
