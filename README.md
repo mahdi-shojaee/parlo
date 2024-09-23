@@ -9,7 +9,7 @@ Parlo is a Go library that provides utility functions for efficiently working wi
 
 ### Current Features:
 
-* **Slices:** Sequential and parallel versions of `Find`, `Min`, `Max`, `Filter`, etc.
+* **Slices:** Sequential and parallel versions of `Min`, `Max`, `Filter`, `IsSorted`, etc.
 
 **(Note: The list of features is subject to change based on development progress.)**
 

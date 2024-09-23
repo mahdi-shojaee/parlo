@@ -1,6 +1,7 @@
 package parlo_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/mahdi-shojaee/parlo"
@@ -61,6 +62,94 @@ func TestParFilter(t *testing.T) {
 			expected := tc.expected
 			actual := parlo.ParFilter(tc.elems, func(item Elem, index int) bool {
 				return item%2 == 0
+			})
+			assert.Equal(t, expected, actual)
+		})
+	}
+}
+
+func TestIsSorted(t *testing.T) {
+	testCases := []struct {
+		slice    Elems
+		isSorted bool
+	}{
+		{Elems{2, 1, 8, 3}, false},
+		{Elems{1, 2, 3, 4, 5}, true},
+		{Elems{4, 3, 2, 1, 8, 9}, false},
+		{Elems{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, true},
+		{Elems{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}, false},
+	}
+
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("should return %t", tc.isSorted), func(t *testing.T) {
+			expected := tc.isSorted
+			actual := parlo.IsSorted(tc.slice)
+			assert.Equal(t, expected, actual)
+		})
+	}
+}
+
+func TestIsSortedBy(t *testing.T) {
+	testCases := []struct {
+		slice    Elems
+		isSorted bool
+	}{
+		{Elems{2, 1, 8, 3}, false},
+		{Elems{1, 2, 3, 4, 5}, true},
+		{Elems{4, 3, 2, 1, 8, 9}, false},
+		{Elems{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, true},
+		{Elems{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}, false},
+	}
+
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("should return %t", tc.isSorted), func(t *testing.T) {
+			expected := tc.isSorted
+			actual := parlo.IsSortedBy(tc.slice, func(a, b Elem) bool {
+				return a > b
+			})
+			assert.Equal(t, expected, actual)
+		})
+	}
+}
+
+func TestParIsSorted(t *testing.T) {
+	testCases := []struct {
+		slice    Elems
+		isSorted bool
+	}{
+		{Elems{2, 1, 8, 3}, false},
+		{Elems{1, 2, 3, 4, 5}, true},
+		{Elems{4, 3, 2, 1, 8, 9}, false},
+		{Elems{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, true},
+		{Elems{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}, false},
+	}
+
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("should return %t", tc.isSorted), func(t *testing.T) {
+			expected := tc.isSorted
+			actual := parlo.ParIsSorted(tc.slice)
+			assert.Equal(t, expected, actual)
+		})
+	}
+}
+
+func TestParIsSortedBy(t *testing.T) {
+	testCases := []struct {
+		slice    Elems
+		isSorted bool
+	}{
+		{Elems{2, 1, 8, 3}, false},
+		{Elems{1, 2, 3, 4, 5}, true},
+		{Elems{4, 3, 2, 1, 8, 9}, false},
+		{Elems{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, true},
+		{Elems{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}, false},
+	}
+
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("should return %t", tc.isSorted), func(t *testing.T) {
+			expected := tc.isSorted
+			actual := parlo.ParIsSortedBy(tc.slice, func(a, b Elem) bool {
+				return a > b
 			})
 			assert.Equal(t, expected, actual)
 		})
