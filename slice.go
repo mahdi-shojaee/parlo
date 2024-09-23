@@ -58,6 +58,7 @@ func ParFilter[S ~[]E, E any](slice S, predicate func(item E, index int) bool) S
 
 // IsSorted checks if the input slice is sorted in ascending order.
 // It returns true if the slice is sorted, false otherwise.
+// Note: ParIsSorted is generally faster than IsSorted for slices with length greater than approximately 55,000 elements.
 func IsSorted[S ~[]E, E constraints.Ordered](slice S) bool {
 	if len(slice) <= 1 {
 		return true
@@ -78,6 +79,7 @@ func IsSorted[S ~[]E, E constraints.Ordered](slice S) bool {
 // IsSortedBy checks if the input slice is sorted according to the provided comparison function.
 // The gt function should return true if a is considered greater than b.
 // It returns true if the slice is sorted, false otherwise.
+// Note: ParIsSortedBy is generally faster than IsSortedBy for slices with length greater than approximately 20,000 elements.
 func IsSortedBy[S ~[]E, E any](slice S, gt func(a, b E) bool) bool {
 	if len(slice) <= 1 {
 		return true
