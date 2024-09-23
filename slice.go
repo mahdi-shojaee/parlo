@@ -28,15 +28,8 @@ func Filter[S ~[]E, E any](slice S, predicate func(item E, index int) bool) S {
 
 // ParFilter applies a predicate function to each element of the input slice in parallel
 // and returns a new slice containing only the elements for which the predicate returns true.
-//
-// If the input slice length is less than or equal to (200,000), it falls back to the sequential Filter function.
+// Note: ParFilter is generally faster than Filter for slices with length greater than approximately 12,000 elements.
 func ParFilter[S ~[]E, E any](slice S, predicate func(item E, index int) bool) S {
-	const minLen = 200_000
-
-	if len(slice) <= minLen {
-		return Filter(slice, predicate)
-	}
-
 	chunkResults := Do(slice, 0, func(chunk S, _, _ int) []E {
 		return Filter(chunk, predicate)
 	})
