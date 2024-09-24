@@ -89,7 +89,7 @@ func TestIsSorted(t *testing.T) {
 	}
 }
 
-func TestIsSortedBy(t *testing.T) {
+func TestIsSortedFunc(t *testing.T) {
 	testCases := []struct {
 		slice    Elems
 		isSorted bool
@@ -104,8 +104,8 @@ func TestIsSortedBy(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("should return %t", tc.isSorted), func(t *testing.T) {
 			expected := tc.isSorted
-			actual := parlo.IsSortedBy(tc.slice, func(a, b Elem) bool {
-				return a > b
+			actual := parlo.IsSortedFunc(tc.slice, func(a, b Elem) int {
+				return int(a) - int(b)
 			})
 			assert.Equal(t, expected, actual)
 		})
@@ -133,7 +133,7 @@ func TestParIsSorted(t *testing.T) {
 	}
 }
 
-func TestParIsSortedBy(t *testing.T) {
+func TestParIsSortedFunc(t *testing.T) {
 	testCases := []struct {
 		slice    Elems
 		isSorted bool
@@ -148,8 +148,8 @@ func TestParIsSortedBy(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("should return %t", tc.isSorted), func(t *testing.T) {
 			expected := tc.isSorted
-			actual := parlo.ParIsSortedBy(tc.slice, func(a, b Elem) bool {
-				return a > b
+			actual := parlo.ParIsSortedFunc(tc.slice, func(a, b Elem) int {
+				return int(a) - int(b)
 			})
 			assert.Equal(t, expected, actual)
 		})

@@ -68,10 +68,11 @@ func IsSorted[S ~[]E, E constraints.Ordered](slice S) bool {
 	return true
 }
 
-// IsSortedBy checks if the input slice is sorted according to the provided comparison function.
-// The gt function should return true if a is considered greater than b.
+// IsSortedFunc checks if the input slice is sorted according to the provided comparison function.
+// The cmp function should return a negative integer if a is considered less than b,
+// a positive integer if a is considered greater than b, and zero if a is considered equal to b.
 // It returns true if the slice is sorted, false otherwise.
-func IsSortedBy[S ~[]E, E any](slice S, gt func(a, b E) bool) bool {
+func IsSortedFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) bool {
 	if len(slice) <= 1 {
 		return true
 	}
@@ -79,7 +80,7 @@ func IsSortedBy[S ~[]E, E any](slice S, gt func(a, b E) bool) bool {
 	item := slice[0]
 
 	for _, v := range slice[1:] {
-		if gt(item, v) {
+		if cmp(item, v) > 0 {
 			return false
 		}
 		item = v
@@ -155,12 +156,12 @@ func ParIsSorted[S ~[]E, E constraints.Ordered](slice S) bool {
 	return true
 }
 
-// ParIsSortedBy checks if the input slice is sorted according to the provided comparison function in parallel.
+// ParIsSortedFunc checks if the input slice is sorted according to the provided comparison function in parallel.
 // The cmp function should return a negative integer if a is considered less than b,
 // a positive integer if a is considered greater than b, and zero if a is considered equal to b.
 // It returns true if the slice is sorted, false otherwise.
-// Note: ParIsSortedBy is generally faster than IsSortedBy for slices with length greater than approximately 20,000 elements.
-func ParIsSortedBy[S ~[]E, E any](slice S, gt func(a, b E) bool) bool {
+// Note: ParIsSortedFunc is generally faster than IsSortedFunc for slices with length greater than approximately 20,000 elements.
+func ParIsSortedFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) bool {
 	if len(slice) <= 1 {
 		return true
 	}
@@ -185,7 +186,7 @@ func ParIsSortedBy[S ~[]E, E any](slice S, gt func(a, b E) bool) bool {
 				break
 			}
 
-			if gt(prev, v) {
+			if cmp(prev, v) > 0 {
 				atomic.StoreUint32(&end, 1)
 				isSorted = false
 				break
@@ -213,7 +214,7 @@ func ParIsSortedBy[S ~[]E, E any](slice S, gt func(a, b E) bool) bool {
 			return false
 		}
 
-		if prevChunkLastItemIsSet && gt(prevChunkLastItem, r.chunk[0]) {
+		if prevChunkLastItemIsSet && cmp(prevChunkLastItem, r.chunk[0]) > 0 {
 			return false
 		}
 

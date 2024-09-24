@@ -31,11 +31,12 @@ func Min[S ~[]E, E constraints.Ordered](slice S) E {
 	return min
 }
 
-// MinBy returns the smallest element in the slice based on the provided comparison function.
+// MinFunc returns the smallest element in the slice based on the provided comparison function.
 // If the slice is empty, it returns the zero value of type E.
-// The lt function should return true if a is considered less than b.
+// The cmp function should return a negative integer if a is considered less than b,
+// a positive integer if a is considered greater than b, and zero if a is considered equal to b.
 // If several values of the slice are equal to the smallest value, it returns the first such value.
-func MinBy[S ~[]E, E any](slice S, lt func(a, b E) bool) E {
+func MinFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) E {
 	var min E
 
 	if len(slice) == 0 {
@@ -45,7 +46,7 @@ func MinBy[S ~[]E, E any](slice S, lt func(a, b E) bool) E {
 	min = slice[0]
 
 	for _, v := range slice[1:] {
-		if lt(v, min) {
+		if cmp(v, min) < 0 {
 			min = v
 		}
 	}
@@ -63,16 +64,17 @@ func ParMin[S ~[]E, E constraints.Ordered](slice S) E {
 	return Min(result)
 }
 
-// ParMinBy returns the smallest element in the slice using parallel processing and a custom comparison function.
-// The lt function should return true if a is considered less than b.
+// ParMinFunc returns the smallest element in the slice using parallel processing and a custom comparison function.
+// The cmp function should return a negative integer if a is considered less than b,
+// a positive integer if a is considered greater than b, and zero if a is considered equal to b.
 // If several values of the slice are equal to the smallest value, it returns the first such value.
-// Note: ParMinBy is generally faster than MinBy for slices with length greater than approximately 10,000 elements.
-func ParMinBy[S ~[]E, E any](slice S, lt func(a, b E) bool) E {
+// Note: ParMinFunc is generally faster than MinFunc for slices with length greater than approximately 10,000 elements.
+func ParMinFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) E {
 	result := Do(slice, 0, func(s S, _, _ int) E {
-		return MinBy(s, lt)
+		return MinFunc(s, cmp)
 	})
 
-	return MinBy(result, lt)
+	return MinFunc(result, cmp)
 }
 
 // Max returns the largest element in the slice.
@@ -95,11 +97,12 @@ func Max[S ~[]E, E constraints.Ordered](slice S) E {
 	return max
 }
 
-// MaxBy returns the largest element in the slice based on the provided comparison function.
+// MaxFunc returns the largest element in the slice based on the provided comparison function.
 // If the slice is empty, it returns the zero value of type E.
-// The gt function should return true if a is considered greater than b.
+// The cmp function should return a positive integer if a is considered greater than b,
+// a negative integer if a is considered less than b, and zero if a is considered equal to b.
 // If several values of the slice are equal to the largest value, it returns the first such value.
-func MaxBy[S ~[]E, E any](slice S, gt func(a, b E) bool) E {
+func MaxFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) E {
 	var max E
 
 	if len(slice) == 0 {
@@ -109,7 +112,7 @@ func MaxBy[S ~[]E, E any](slice S, gt func(a, b E) bool) E {
 	max = slice[0]
 
 	for _, v := range slice[1:] {
-		if gt(v, max) {
+		if cmp(v, max) > 0 {
 			max = v
 		}
 	}
@@ -127,16 +130,17 @@ func ParMax[S ~[]E, E constraints.Ordered](slice S) E {
 	return Max(result)
 }
 
-// ParMaxBy returns the largest element in the slice using parallel processing and a custom comparison function.
-// The gt function should return true if a is considered greater than b.
+// ParMaxFunc returns the largest element in the slice using parallel processing and a custom comparison function.
+// The cmp function should return a positive integer if a is considered greater than b,
+// a negative integer if a is considered less than b, and zero if a is considered equal to b.
 // If several values of the slice are equal to the largest value, it returns the first such value.
-// Note: ParMaxBy is generally faster than MaxBy for slices with length greater than approximately 10,000 elements.
-func ParMaxBy[S ~[]E, E any](slice S, gt func(a, b E) bool) E {
+// Note: ParMaxFunc is generally faster than MaxFunc for slices with length greater than approximately 10,000 elements.
+func ParMaxFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) E {
 	result := Do(slice, 0, func(s S, _, _ int) E {
-		return MaxBy(s, gt)
+		return MaxFunc(s, cmp)
 	})
 
-	return MaxBy(result, gt)
+	return MaxFunc(result, cmp)
 }
 
 // Find returns the first element in the slice that satisfies the predicate function.

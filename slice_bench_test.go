@@ -82,25 +82,25 @@ func BenchmarkIsSortedVsParIsSortedTwoFirstElemsSwapped(b *testing.B) {
 	}
 }
 
-func BenchmarkIsSortedByVsParIsSortedBy(b *testing.B) {
+func BenchmarkIsSortedFuncVsParIsSortedFunc(b *testing.B) {
 	sizes := []int{10_000, 20_000, 50_000, 100_000, 500_000, 1_000_000, 10_000_000, 100_000_000, 1_000_000_000, 2_000_000_000}
 	bigSlice := MakeCollection(Max(sizes), 0.0, func(index int) Elem { return Elem(index) })
 
 	for _, size := range sizes {
 		slice := bigSlice[:size]
 
-		b.Run(fmt.Sprintf("parlo.IsSortedBy-Size%d", size), func(b *testing.B) {
+		b.Run(fmt.Sprintf("parlo.IsSortedFunc-Size%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				parlo.IsSortedBy(slice, func(a, b Elem) bool {
-					return a > b
+				parlo.IsSortedFunc(slice, func(a, b Elem) int {
+					return int(a - b)
 				})
 			}
 		})
 
-		b.Run(fmt.Sprintf("parlo.ParIsSortedBy-Size%d", size), func(b *testing.B) {
+		b.Run(fmt.Sprintf("parlo.ParIsSortedFunc-Size%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				parlo.ParIsSortedBy(slice, func(a, b Elem) bool {
-					return a > b
+				parlo.ParIsSortedFunc(slice, func(a, b Elem) int {
+					return int(a - b)
 				})
 			}
 		})
@@ -109,7 +109,7 @@ func BenchmarkIsSortedByVsParIsSortedBy(b *testing.B) {
 	}
 }
 
-func BenchmarkIsSortedByVsParIsSortedByTwoFirstElemsSwapped(b *testing.B) {
+func BenchmarkIsSortedFuncVsParIsSortedFuncTwoFirstElemsSwapped(b *testing.B) {
 	sizes := []int{100_000, 500_000, 1_000_000, 10_000_000, 100_000_000, 1_000_000_000, 2_000_000_000}
 	bigSlice := MakeCollection(Max(sizes), 0.0, func(index int) Elem { return Elem(index) })
 
@@ -118,18 +118,18 @@ func BenchmarkIsSortedByVsParIsSortedByTwoFirstElemsSwapped(b *testing.B) {
 	for _, size := range sizes {
 		slice := bigSlice[:size]
 
-		b.Run(fmt.Sprintf("parlo.IsSortedBy-Size%d", size), func(b *testing.B) {
+		b.Run(fmt.Sprintf("parlo.IsSortedFunc-Size%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				parlo.IsSortedBy(slice, func(a, b Elem) bool {
-					return a > b
+				parlo.IsSortedFunc(slice, func(a, b Elem) int {
+					return int(a - b)
 				})
 			}
 		})
 
-		b.Run(fmt.Sprintf("parlo.ParIsSortedBy-Size%d", size), func(b *testing.B) {
+		b.Run(fmt.Sprintf("parlo.ParIsSortedFunc-Size%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				parlo.ParIsSortedBy(slice, func(a, b Elem) bool {
-					return a > b
+				parlo.ParIsSortedFunc(slice, func(a, b Elem) int {
+					return int(a - b)
 				})
 			}
 		})

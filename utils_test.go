@@ -103,7 +103,7 @@ func Min[S ~[]E, E constraints.Ordered](slice S) E {
 	return min
 }
 
-func MinBy[S ~[]E, E any](slice S, lt func(a, b E) bool) E {
+func MinFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) E {
 	var min E
 
 	if len(slice) == 0 {
@@ -113,7 +113,7 @@ func MinBy[S ~[]E, E any](slice S, lt func(a, b E) bool) E {
 	min = slice[0]
 
 	for _, v := range slice[1:] {
-		if lt(v, min) {
+		if cmp(v, min) < 0 {
 			min = v
 		}
 	}
@@ -139,7 +139,7 @@ func Max[S ~[]E, E constraints.Ordered](slice S) E {
 	return max
 }
 
-func MaxBy[S ~[]E, E any](slice S, gt func(a, b E) bool) E {
+func MaxFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) E {
 	var max E
 
 	if len(slice) == 0 {
@@ -149,7 +149,7 @@ func MaxBy[S ~[]E, E any](slice S, gt func(a, b E) bool) E {
 	max = slice[0]
 
 	for _, v := range slice[1:] {
-		if gt(v, max) {
+		if cmp(v, max) > 0 {
 			max = v
 		}
 	}

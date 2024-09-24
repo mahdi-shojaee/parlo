@@ -30,25 +30,25 @@ func BenchmarkMinVsParMin(b *testing.B) {
 	}
 }
 
-func BenchmarkMinByVsParMinBy(b *testing.B) {
+func BenchmarkMinFuncVsParMinFunc(b *testing.B) {
 	sizes := []int{5_000, 9_000, 10_000, 100_000, 200_000, 500_000, 1_000_000}
 	bigSlice := MakeCollection(Max(sizes), 0.0, func(index int) Elem { return Elem(index) })
 
 	for _, size := range sizes {
 		slice := bigSlice[:size]
 
-		b.Run(fmt.Sprintf("parlo.MinBy-Size%d", size), func(b *testing.B) {
+		b.Run(fmt.Sprintf("parlo.MinFunc-Size%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				parlo.MinBy(slice, func(a, b Elem) bool {
-					return a < b
+				parlo.MinFunc(slice, func(a, b Elem) int {
+					return int(a) - int(b)
 				})
 			}
 		})
 
-		b.Run(fmt.Sprintf("parlo.ParMinBy-Size%d", size), func(b *testing.B) {
+		b.Run(fmt.Sprintf("parlo.ParMinFunc-Size%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				parlo.ParMinBy(slice, func(a, b Elem) bool {
-					return a < b
+				parlo.ParMinFunc(slice, func(a, b Elem) int {
+					return int(a) - int(b)
 				})
 			}
 		})
@@ -80,25 +80,25 @@ func BenchmarkMaxVsParMax(b *testing.B) {
 	}
 }
 
-func BenchmarkMaxByVsParMaxBy(b *testing.B) {
+func BenchmarkMaxFuncVsParMaxFunc(b *testing.B) {
 	sizes := []int{5_000, 9_000, 10_000, 100_000, 200_000, 500_000, 1_000_000}
 	bigSlice := MakeCollection(Max(sizes), 0.0, func(index int) Elem { return Elem(index) })
 
 	for _, size := range sizes {
 		slice := bigSlice[:size]
 
-		b.Run(fmt.Sprintf("parlo.MaxBy-Size%d", size), func(b *testing.B) {
+		b.Run(fmt.Sprintf("parlo.MaxFunc-Size%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				parlo.MaxBy(slice, func(a, b Elem) bool {
-					return a < b
+				parlo.MaxFunc(slice, func(a, b Elem) int {
+					return int(a) - int(b)
 				})
 			}
 		})
 
-		b.Run(fmt.Sprintf("parlo.ParMaxBy-Size%d", size), func(b *testing.B) {
+		b.Run(fmt.Sprintf("parlo.ParMaxFunc-Size%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				parlo.ParMaxBy(slice, func(a, b Elem) bool {
-					return a < b
+				parlo.ParMaxFunc(slice, func(a, b Elem) int {
+					return int(a) - int(b)
 				})
 			}
 		})

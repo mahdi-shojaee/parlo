@@ -31,7 +31,7 @@ func TestMin(t *testing.T) {
 	}
 }
 
-func TestMinBy(t *testing.T) {
+func TestMinFunc(t *testing.T) {
 	testCases := []Elems{
 		{2, 1, 8, 3},
 		{1, 2, 3, 4, 5},
@@ -48,8 +48,8 @@ func TestMinBy(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run("should return min value", func(t *testing.T) {
 			expected := Min(tc)
-			actual := parlo.MinBy(tc, func(a, b Elem) bool {
-				return a < b
+			actual := parlo.MinFunc(tc, func(a, b Elem) int {
+				return int(a) - int(b)
 			})
 			assert.Equal(t, expected, actual)
 		})
@@ -79,7 +79,7 @@ func TestParMin(t *testing.T) {
 	}
 }
 
-func TestParMinBy(t *testing.T) {
+func TestParMinFunc(t *testing.T) {
 	testCases := []Elems{
 		{2, 1, 8, 3},
 		{1, 2, 3, 4, 5},
@@ -96,8 +96,8 @@ func TestParMinBy(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run("should return min value", func(t *testing.T) {
 			expected := Min(tc)
-			actual := parlo.ParMinBy(tc, func(a, b Elem) bool {
-				return a < b
+			actual := parlo.ParMinFunc(tc, func(a, b Elem) int {
+				return int(a) - int(b)
 			})
 			assert.Equal(t, expected, actual)
 		})
@@ -127,7 +127,7 @@ func TestMax(t *testing.T) {
 	}
 }
 
-func TestMaxBy(t *testing.T) {
+func TestMaxFunc(t *testing.T) {
 	testCases := []Elems{
 		{2, 1, 8, 3},
 		{1, 2, 3, 4, 5},
@@ -144,8 +144,8 @@ func TestMaxBy(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run("should return max value", func(t *testing.T) {
 			expected := Max(tc)
-			actual := parlo.MaxBy(tc, func(a, b Elem) bool {
-				return a > b
+			actual := parlo.MaxFunc(tc, func(a, b Elem) int {
+				return int(a) - int(b)
 			})
 			assert.Equal(t, expected, actual)
 		})
@@ -175,7 +175,7 @@ func TestParMax(t *testing.T) {
 	}
 }
 
-func TestParMaxBy(t *testing.T) {
+func TestParMaxFunc(t *testing.T) {
 	testCases := []Elems{
 		{2, 1, 8, 3},
 		{1, 2, 3, 4, 5},
@@ -192,8 +192,8 @@ func TestParMaxBy(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run("should return max value", func(t *testing.T) {
 			expected := Max(tc)
-			actual := parlo.ParMaxBy(tc, func(a, b Elem) bool {
-				return a > b
+			actual := parlo.ParMaxFunc(tc, func(a, b Elem) int {
+				return int(a) - int(b)
 			})
 			assert.Equal(t, expected, actual)
 		})
