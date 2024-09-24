@@ -224,3 +224,89 @@ func ParIsSortedFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) bool {
 
 	return true
 }
+
+// IsSortedDesc checks if the input slice is sorted in descending order.
+// It returns true if the slice is sorted, false otherwise.
+func IsSortedDesc[S ~[]E, E constraints.Ordered](slice S) bool {
+	if len(slice) <= 1 {
+		return true
+	}
+
+	item := slice[0]
+
+	for _, v := range slice[1:] {
+		if item < v {
+			return false
+		}
+		item = v
+	}
+
+	return true
+}
+
+// ParIsSortedDesc checks if the input slice is sorted in descending order in parallel.
+// It returns true if the slice is sorted, false otherwise.
+// Note: ParIsSorted is generally faster than IsSorted for slices with length greater than approximately 55,000 elements.
+func ParIsSortedDesc[S ~[]E, E constraints.Ordered](slice S) bool {
+	if len(slice) <= 1 {
+		return true
+	}
+
+	var end uint32 = 0
+
+	results := Do(slice, 0, func(chunk S, _, chunkStartIndex int) IsSortedChunkResult[E] {
+		if len(chunk) <= 1 {
+			return IsSortedChunkResult[E]{
+				isSorted:        true,
+				chunkStartIndex: chunkStartIndex,
+				chunk:           chunk,
+			}
+		}
+
+		prev := chunk[0]
+		isSorted := true
+
+		for _, v := range chunk[1:] {
+			if atomic.LoadUint32(&end) != 0 {
+				isSorted = false
+				break
+			}
+
+			if prev < v {
+				atomic.StoreUint32(&end, 1)
+				isSorted = false
+				break
+			}
+
+			prev = v
+		}
+
+		return IsSortedChunkResult[E]{
+			isSorted:        isSorted,
+			chunkStartIndex: chunkStartIndex,
+			chunk:           chunk,
+		}
+	})
+
+	var prevChunkLastItem E
+	prevChunkLastItemIsSet := false
+
+	for _, r := range results {
+		if len(r.chunk) == 0 {
+			continue
+		}
+
+		if !r.isSorted {
+			return false
+		}
+
+		if prevChunkLastItemIsSet && prevChunkLastItem < r.chunk[0] {
+			return false
+		}
+
+		prevChunkLastItem = r.chunk[len(r.chunk)-1]
+		prevChunkLastItemIsSet = true
+	}
+
+	return true
+}
