@@ -6,7 +6,7 @@ import (
 	"github.com/mahdi-shojaee/parlo/internal/constraints"
 )
 
-type IsSortedChunkResult[E any] struct {
+type isSortedChunkResult[E any] struct {
 	isSorted        bool
 	chunkStartIndex int
 	chunk           []E
@@ -99,9 +99,9 @@ func ParIsSorted[S ~[]E, E constraints.Ordered](slice S) bool {
 
 	var end uint32 = 0
 
-	results := Do(slice, 0, func(chunk S, _, chunkStartIndex int) IsSortedChunkResult[E] {
+	results := Do(slice, 0, func(chunk S, _, chunkStartIndex int) isSortedChunkResult[E] {
 		if len(chunk) <= 1 {
-			return IsSortedChunkResult[E]{
+			return isSortedChunkResult[E]{
 				isSorted:        true,
 				chunkStartIndex: chunkStartIndex,
 				chunk:           chunk,
@@ -126,7 +126,7 @@ func ParIsSorted[S ~[]E, E constraints.Ordered](slice S) bool {
 			prev = v
 		}
 
-		return IsSortedChunkResult[E]{
+		return isSortedChunkResult[E]{
 			isSorted:        isSorted,
 			chunkStartIndex: chunkStartIndex,
 			chunk:           chunk,
@@ -168,9 +168,9 @@ func ParIsSortedFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) bool {
 
 	var end uint32 = 0
 
-	results := Do(slice, 0, func(chunk S, _, chunkStartIndex int) IsSortedChunkResult[E] {
+	results := Do(slice, 0, func(chunk S, _, chunkStartIndex int) isSortedChunkResult[E] {
 		if len(chunk) <= 1 {
-			return IsSortedChunkResult[E]{
+			return isSortedChunkResult[E]{
 				isSorted:        true,
 				chunkStartIndex: chunkStartIndex,
 				chunk:           chunk,
@@ -195,7 +195,7 @@ func ParIsSortedFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) bool {
 			prev = v
 		}
 
-		return IsSortedChunkResult[E]{
+		return isSortedChunkResult[E]{
 			isSorted:        isSorted,
 			chunkStartIndex: chunkStartIndex,
 			chunk:           chunk,
@@ -254,9 +254,9 @@ func ParIsSortedDesc[S ~[]E, E constraints.Ordered](slice S) bool {
 
 	var end uint32 = 0
 
-	results := Do(slice, 0, func(chunk S, _, chunkStartIndex int) IsSortedChunkResult[E] {
+	results := Do(slice, 0, func(chunk S, _, chunkStartIndex int) isSortedChunkResult[E] {
 		if len(chunk) <= 1 {
-			return IsSortedChunkResult[E]{
+			return isSortedChunkResult[E]{
 				isSorted:        true,
 				chunkStartIndex: chunkStartIndex,
 				chunk:           chunk,
@@ -281,7 +281,7 @@ func ParIsSortedDesc[S ~[]E, E constraints.Ordered](slice S) bool {
 			prev = v
 		}
 
-		return IsSortedChunkResult[E]{
+		return isSortedChunkResult[E]{
 			isSorted:        isSorted,
 			chunkStartIndex: chunkStartIndex,
 			chunk:           chunk,

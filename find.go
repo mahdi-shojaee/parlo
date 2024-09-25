@@ -6,7 +6,7 @@ import (
 	"github.com/mahdi-shojaee/parlo/internal/constraints"
 )
 
-type ParFindChunkResult[E any] struct {
+type parFindChunkResult[E any] struct {
 	value E
 	ok    bool
 }
@@ -162,22 +162,22 @@ func Find[E any](slice []E, predicate func(item E) bool) (E, bool) {
 func ParFind[E any](slice []E, predicate func(item E) bool) (E, bool) {
 	var mask uint64 = 0
 
-	results := Do(slice, 0, func(chunk []E, index int, chunkStartIndex int) ParFindChunkResult[E] {
+	results := Do(slice, 0, func(chunk []E, index int, chunkStartIndex int) parFindChunkResult[E] {
 		for _, v := range chunk {
 			if atomic.LoadUint64(&mask)>>(64-index) != 0 {
 				// Found by prev chunks
 				var zero E
-				return ParFindChunkResult[E]{zero, false}
+				return parFindChunkResult[E]{zero, false}
 			}
 			if predicate(v) {
 				// Found, So set the related bit in flag
 				atomic.AddUint64(&mask, 1<<(63-index))
-				return ParFindChunkResult[E]{v, true}
+				return parFindChunkResult[E]{v, true}
 			}
 		}
 
 		var result E
-		return ParFindChunkResult[E]{result, false}
+		return parFindChunkResult[E]{result, false}
 	})
 
 	for _, v := range results {
