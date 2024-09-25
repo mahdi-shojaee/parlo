@@ -2,6 +2,7 @@ package parlo_test
 
 import (
 	"fmt"
+	"slices"
 	"testing"
 
 	"github.com/mahdi-shojaee/parlo"
@@ -131,6 +132,35 @@ func BenchmarkIsSortedFuncVsParIsSortedFuncTwoFirstElemsSwapped(b *testing.B) {
 				parlo.ParIsSortedFunc(slice, func(a, b Elem) int {
 					return int(a - b)
 				})
+			}
+		})
+
+		fmt.Println()
+	}
+}
+
+func BenchmarkReverseVsParReverse(b *testing.B) {
+	sizes := []int{10_000, 100_000, 500_000, 600_000, 700_000, 1_000_000, 10_000_000, 100_000_000, 1_000_000_000}
+	bigSlice := MakeCollection(Max(sizes), 0.0, func(index int) Elem { return Elem(index) })
+
+	for _, size := range sizes {
+		slice := bigSlice[:size]
+
+		b.Run(fmt.Sprintf("parlo.Reverse-Size%d", size), func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				slices.Reverse(slice)
+			}
+		})
+
+		b.Run(fmt.Sprintf("parlo.Reverse-Size%d", size), func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				parlo.Reverse(slice)
+			}
+		})
+
+		b.Run(fmt.Sprintf("parlo.ParReverse-Size%d", size), func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				parlo.ParReverse(slice)
 			}
 		})
 

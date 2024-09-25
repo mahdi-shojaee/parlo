@@ -1,6 +1,7 @@
 package parlo
 
 import (
+	"sync"
 	"sync/atomic"
 
 	"github.com/mahdi-shojaee/parlo/internal/constraints"
@@ -309,4 +310,51 @@ func ParIsSortedDesc[S ~[]E, E constraints.Ordered](slice S) bool {
 	}
 
 	return true
+}
+
+// Reverse reverses the elements of the input slice in place.
+func Reverse[S ~[]E, E any](slice S) {
+	if len(slice) <= 1 {
+		return
+	}
+
+	end := len(slice) / 2
+	l := len(slice)
+
+	for i, j := 0, l-1; i < end; i, j = i+1, j-1 {
+		slice[i], slice[j] = slice[j], slice[i]
+	}
+}
+
+// ParReverse reverses the elements of the input slice in parallel.
+// Note: ParReverse is generally faster than Reverse for slices with length greater than approximately 600,000 elements.
+func ParReverse[S ~[]E, E any](slice S) {
+	l := len(slice)
+
+	if l <= 1 {
+		return
+	}
+
+	numThreads := 2
+
+	chunkSize := l / numThreads / 2
+
+	var wg sync.WaitGroup
+
+	for i, startIndex := 0, 0; i < numThreads-1; i, startIndex = i+1, startIndex+chunkSize {
+		leftSlice := slice[startIndex : startIndex+chunkSize]
+		rightSlice := slice[l-startIndex-chunkSize : l-startIndex]
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for j, k := 0, len(rightSlice)-1; j < chunkSize; j, k = j+1, k-1 {
+				leftSlice[j], rightSlice[k] = rightSlice[k], leftSlice[j]
+			}
+		}()
+	}
+
+	Reverse(slice[(numThreads-1)*chunkSize : l-(numThreads-1)*chunkSize])
+
+	wg.Wait()
 }

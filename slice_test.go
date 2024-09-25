@@ -197,3 +197,47 @@ func TestParIsSortedDesc(t *testing.T) {
 		})
 	}
 }
+
+func TestReverse(t *testing.T) {
+	testCases := []struct {
+		slice    Elems
+		expected Elems
+	}{
+		{Elems{2, 1, 8, 3}, Elems{3, 8, 1, 2}},
+		{Elems{1, 2, 3, 4, 5}, Elems{5, 4, 3, 2, 1}},
+		{Elems{4, 3, 2, 1, 8, 9}, Elems{9, 8, 1, 2, 3, 4}},
+		{Elems{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, Elems{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}},
+		{Elems{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}, Elems{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}},
+	}
+
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("should return %v", tc.expected), func(t *testing.T) {
+			expected := tc.expected
+			actual := tc.slice
+			parlo.Reverse(actual)
+			assert.Equal(t, expected, actual)
+		})
+	}
+}
+
+func TestParReverse(t *testing.T) {
+	testCases := []struct {
+		slice    Elems
+		expected Elems
+	}{
+		{Elems{2, 1, 8, 3}, Elems{3, 8, 1, 2}},
+		{Elems{1, 2, 3, 4, 5}, Elems{5, 4, 3, 2, 1}},
+		{Elems{4, 3, 2, 1, 8, 9}, Elems{9, 8, 1, 2, 3, 4}},
+		{Elems{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, Elems{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}},
+		{Elems{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}, Elems{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}},
+	}
+
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("should return %v", tc.expected), func(t *testing.T) {
+			expected := tc.expected
+			actual := tc.slice
+			parlo.ParReverse(actual)
+			assert.Equal(t, expected, actual)
+		})
+	}
+}
