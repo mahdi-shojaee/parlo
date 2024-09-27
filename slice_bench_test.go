@@ -2,10 +2,12 @@ package parlo_test
 
 import (
 	"fmt"
-	"slices"
 	"testing"
 
+	sls "slices"
+
 	"github.com/mahdi-shojaee/parlo"
+	"github.com/mahdi-shojaee/parlo/internal/slices"
 )
 
 func BenchmarkFilterVsParFilter(b *testing.B) {
@@ -15,21 +17,23 @@ func BenchmarkFilterVsParFilter(b *testing.B) {
 	for _, size := range sizes {
 		slice := bigSlice[:size]
 
-		b.Run(fmt.Sprintf("parlo.IsSorted-Size%d", size), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				parlo.Filter(slice, func(item Elem, index int) bool {
-					return item%2 == 0
-				})
-			}
-		})
+		fns := []struct {
+			name string
+			fn   func(Elems, func(Elem, int) bool) Elems
+		}{
+			{"parlo.Filter", parlo.Filter[Elems]},
+			{"parlo.ParFilter", parlo.ParFilter[Elems]},
+		}
 
-		b.Run(fmt.Sprintf("parlo.ParIsSorted-Size%d", size), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				parlo.ParFilter(slice, func(item Elem, index int) bool {
-					return item%2 == 0
-				})
-			}
-		})
+		for _, f := range fns {
+			b.Run(fmt.Sprintf("%s-Size%d", f.name, size), func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					f.fn(slice, func(item Elem, index int) bool {
+						return item%2 == 0
+					})
+				}
+			})
+		}
 
 		fmt.Println()
 	}
@@ -41,18 +45,22 @@ func BenchmarkIsSortedVsParIsSorted(b *testing.B) {
 
 	for _, size := range sizes {
 		slice := bigSlice[:size]
+		fns := []struct {
+			name string
+			fn   func(Elems) bool
+		}{
+			{"slices.IsSorted", sls.IsSorted[Elems]},
+			{"parlo.IsSorted", parlo.IsSorted[Elems]},
+			{"parlo.ParIsSorted", parlo.ParIsSorted[Elems]},
+		}
 
-		b.Run(fmt.Sprintf("parlo.IsSorted-Size%d", size), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				parlo.IsSorted(slice)
-			}
-		})
-
-		b.Run(fmt.Sprintf("parlo.ParIsSorted-Size%d", size), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				parlo.ParIsSorted(slice)
-			}
-		})
+		for _, f := range fns {
+			b.Run(fmt.Sprintf("%s-Size%d", f.name, size), func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					f.fn(slice)
+				}
+			})
+		}
 
 		fmt.Println()
 	}
@@ -67,17 +75,22 @@ func BenchmarkIsSortedVsParIsSortedTwoFirstElemsSwapped(b *testing.B) {
 	for _, size := range sizes {
 		slice := bigSlice[:size]
 
-		b.Run(fmt.Sprintf("parlo.IsSorted-Size%d", size), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				parlo.IsSorted(slice)
-			}
-		})
+		fns := []struct {
+			name string
+			fn   func(Elems) bool
+		}{
+			{"slices.IsSorted", sls.IsSorted[Elems]},
+			{"parlo.IsSorted", parlo.IsSorted[Elems]},
+			{"parlo.ParIsSorted", parlo.ParIsSorted[Elems]},
+		}
 
-		b.Run(fmt.Sprintf("parlo.ParIsSorted-Size%d", size), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				parlo.ParIsSorted(slice)
-			}
-		})
+		for _, f := range fns {
+			b.Run(fmt.Sprintf("%s-Size%d", f.name, size), func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					f.fn(slice)
+				}
+			})
+		}
 
 		fmt.Println()
 	}
@@ -90,21 +103,24 @@ func BenchmarkIsSortedFuncVsParIsSortedFunc(b *testing.B) {
 	for _, size := range sizes {
 		slice := bigSlice[:size]
 
-		b.Run(fmt.Sprintf("parlo.IsSortedFunc-Size%d", size), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				parlo.IsSortedFunc(slice, func(a, b Elem) int {
-					return int(a - b)
-				})
-			}
-		})
+		fns := []struct {
+			name string
+			fn   func(Elems, func(Elem, Elem) int) bool
+		}{
+			{"slices.IsSortedFunc", sls.IsSortedFunc[Elems]},
+			{"parlo.IsSortedFunc", parlo.IsSortedFunc[Elems]},
+			{"parlo.ParIsSortedFunc", parlo.ParIsSortedFunc[Elems]},
+		}
 
-		b.Run(fmt.Sprintf("parlo.ParIsSortedFunc-Size%d", size), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				parlo.ParIsSortedFunc(slice, func(a, b Elem) int {
-					return int(a - b)
-				})
-			}
-		})
+		for _, f := range fns {
+			b.Run(fmt.Sprintf("%s-Size%d", f.name, size), func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					f.fn(slice, func(a, b Elem) int {
+						return int(a - b)
+					})
+				}
+			})
+		}
 
 		fmt.Println()
 	}
@@ -118,22 +134,24 @@ func BenchmarkIsSortedFuncVsParIsSortedFuncTwoFirstElemsSwapped(b *testing.B) {
 
 	for _, size := range sizes {
 		slice := bigSlice[:size]
+		fns := []struct {
+			name string
+			fn   func(Elems, func(Elem, Elem) int) bool
+		}{
+			{"slices.IsSortedFunc", sls.IsSortedFunc[Elems]},
+			{"parlo.IsSortedFunc", parlo.IsSortedFunc[Elems]},
+			{"parlo.ParIsSortedFunc", parlo.ParIsSortedFunc[Elems]},
+		}
 
-		b.Run(fmt.Sprintf("parlo.IsSortedFunc-Size%d", size), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				parlo.IsSortedFunc(slice, func(a, b Elem) int {
-					return int(a - b)
-				})
-			}
-		})
-
-		b.Run(fmt.Sprintf("parlo.ParIsSortedFunc-Size%d", size), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				parlo.ParIsSortedFunc(slice, func(a, b Elem) int {
-					return int(a - b)
-				})
-			}
-		})
+		for _, f := range fns {
+			b.Run(fmt.Sprintf("%s-Size%d", f.name, size), func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					f.fn(slice, func(a, b Elem) int {
+						return int(a - b)
+					})
+				}
+			})
+		}
 
 		fmt.Println()
 	}
@@ -146,23 +164,241 @@ func BenchmarkReverseVsParReverse(b *testing.B) {
 	for _, size := range sizes {
 		slice := bigSlice[:size]
 
-		b.Run(fmt.Sprintf("parlo.Reverse-Size%d", size), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				slices.Reverse(slice)
-			}
-		})
+		fns := []struct {
+			name string
+			fn   func(Elems)
+		}{
+			{"slices.Reverse", sls.Reverse[Elems]},
+			{"parlo.Reverse", parlo.Reverse[Elems]},
+			{"parlo.ParReverse", parlo.ParReverse[Elems]},
+		}
 
-		b.Run(fmt.Sprintf("parlo.Reverse-Size%d", size), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				parlo.Reverse(slice)
-			}
-		})
+		for _, f := range fns {
+			b.Run(fmt.Sprintf("%s-Size%d", f.name, size), func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					f.fn(slice)
+				}
+			})
+		}
 
-		b.Run(fmt.Sprintf("parlo.ParReverse-Size%d", size), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				parlo.ParReverse(slice)
-			}
-		})
+		fmt.Println()
+	}
+}
+
+func BenchmarkEqualVsParEqual(b *testing.B) {
+	sizes := []int{10_000, 100_000, 200_000, 200_000, 220_000, 240_000, 250_000, 300_000, 500_000, 600_000, 700_000, 1_000_000, 10_000_000}
+	bigSlice := MakeCollection(Max(sizes), 0.0, func(index int) Elem { return Elem(index) })
+
+	for _, size := range sizes {
+		slice := bigSlice[:size]
+		fns := []struct {
+			name string
+			fn   func(Elems, Elems) bool
+		}{
+			{"slices.Equal", sls.Equal[Elems]},
+			{"parlo.Equal", parlo.Equal[Elems]},
+			{"parlo.ParEqual", parlo.ParEqual[Elems]},
+		}
+
+		for _, f := range fns {
+			b.Run(fmt.Sprintf("%s-Size%d", f.name, size), func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					f.fn(slice, slice)
+				}
+			})
+		}
+
+		fmt.Println()
+	}
+}
+
+func BenchmarkSortPseudoRandomInput(b *testing.B) {
+	lengths := []int{10_000, 1_000_000, 100_000_000}
+
+	fns := []struct {
+		name string
+		fn   func(collection Elems)
+	}{
+		{"Sort", parlo.Sort[Elems]},
+		{"ParSort", parlo.ParSort[Elems, Elem]},
+	}
+
+	for _, length := range lengths {
+		slice := MakeCollection(length, 0.1, func(index int) Elem { return Elem(index) })
+
+		for _, f := range fns {
+			name := fmt.Sprintf("%s len=%d", f.name, length)
+
+			b.Run(name, func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					b.StopTimer()
+					sliceCopy := slices.Clone(slice)
+					b.StartTimer()
+					f.fn(sliceCopy)
+				}
+			})
+		}
+
+		fmt.Println()
+	}
+}
+
+func BenchmarkSortFuncPseudoRandomInput(b *testing.B) {
+	lengths := []int{10_000, 1_000_000, 100_000_000}
+
+	fns := []struct {
+		name string
+		fn   func(collection Elems, cmp func(a Elem, b Elem) int)
+	}{
+		{"SortFunc", parlo.SortFunc[Elems, Elem]},
+		{"ParSortFunc", parlo.ParSortFunc[Elems, Elem]},
+	}
+
+	for _, length := range lengths {
+		slice := MakeCollection(length, 0.1, func(index int) Elem { return Elem(index) })
+
+		for _, f := range fns {
+			name := fmt.Sprintf("%s len=%d", f.name, length)
+
+			b.Run(name, func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					b.StopTimer()
+					sliceCopy := slices.Clone(slice)
+					b.StartTimer()
+					f.fn(sliceCopy, func(a Elem, b Elem) int {
+						return int(a) - int(b)
+					})
+				}
+			})
+		}
+
+		fmt.Println()
+	}
+}
+
+func BenchmarkSortSortedAscending(b *testing.B) {
+	lengths := []int{10_000, 1_000_000, 100_000_000}
+
+	fns := []struct {
+		name string
+		fn   func(collection Elems)
+	}{
+		{"Sort", parlo.Sort[Elems]},
+		{"ParSort", parlo.ParSort[Elems, Elem]},
+	}
+
+	for _, length := range lengths {
+		slice := MakeCollection(length, 0.0, func(index int) Elem { return Elem(index) })
+
+		for _, f := range fns {
+			name := fmt.Sprintf("%s len=%d", f.name, length)
+
+			b.Run(name, func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					b.StopTimer()
+					sliceCopy := slices.Clone(slice)
+					b.StartTimer()
+					f.fn(sliceCopy)
+				}
+			})
+		}
+
+		fmt.Println()
+	}
+}
+
+func BenchmarkSortFuncSortedAscending(b *testing.B) {
+	lengths := []int{10_000, 1_000_000, 100_000_000}
+
+	fns := []struct {
+		name string
+		fn   func(collection Elems, cmp func(a Elem, b Elem) int)
+	}{
+		{"SortFunc", parlo.SortFunc[Elems, Elem]},
+		{"ParSortFunc", parlo.ParSortFunc[Elems, Elem]},
+	}
+
+	for _, length := range lengths {
+		slice := MakeCollection(length, 0.0, func(index int) Elem { return Elem(index) })
+
+		for _, f := range fns {
+			name := fmt.Sprintf("%s len=%d", f.name, length)
+
+			b.Run(name, func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					b.StopTimer()
+					sliceCopy := slices.Clone(slice)
+					b.StartTimer()
+					f.fn(sliceCopy, func(a Elem, b Elem) int {
+						return int(a) - int(b)
+					})
+				}
+			})
+		}
+
+		fmt.Println()
+	}
+}
+
+func BenchmarkSortSortedDescending(b *testing.B) {
+	lengths := []int{10_000, 1_000_000, 100_000_000}
+
+	fns := []struct {
+		name string
+		fn   func(collection Elems)
+	}{
+		{"Sort", parlo.Sort[Elems]},
+		{"ParSort", parlo.ParSort[Elems, Elem]},
+	}
+
+	for _, length := range lengths {
+		slice := MakeCollection(length, 0.0, func(index int) Elem { return Elem(length - index - 1) })
+
+		for _, f := range fns {
+			name := fmt.Sprintf("%s len=%d", f.name, length)
+
+			b.Run(name, func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					b.StopTimer()
+					sliceCopy := slices.Clone(slice)
+					b.StartTimer()
+					f.fn(sliceCopy)
+				}
+			})
+		}
+
+		fmt.Println()
+	}
+}
+
+func BenchmarkSortFuncSortedDescending(b *testing.B) {
+	lengths := []int{10_000, 1_000_000, 100_000_000}
+
+	fns := []struct {
+		name string
+		fn   func(collection Elems, cmp func(a Elem, b Elem) int)
+	}{
+		{"SortFunc", parlo.SortFunc[Elems, Elem]},
+		{"ParSortFunc", parlo.ParSortFunc[Elems, Elem]},
+	}
+
+	for _, length := range lengths {
+		slice := MakeCollection(length, 0.0, func(index int) Elem { return Elem(length - index - 1) })
+
+		for _, f := range fns {
+			name := fmt.Sprintf("%s len=%d", f.name, length)
+
+			b.Run(name, func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					b.StopTimer()
+					sliceCopy := slices.Clone(slice)
+					b.StartTimer()
+					f.fn(sliceCopy, func(a Elem, b Elem) int {
+						return int(a) - int(b)
+					})
+				}
+			})
+		}
 
 		fmt.Println()
 	}
