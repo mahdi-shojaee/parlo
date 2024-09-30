@@ -55,7 +55,6 @@ func MinFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) E {
 }
 
 // ParMin returns the smallest element in the slice using parallel processing.
-// Note: ParMin is generally faster than Min for slices with length greater than approximately 200,000 elements.
 func ParMin[S ~[]E, E constraints.Ordered](slice S) E {
 	result := Do(slice, 0, func(s S, _, _ int) E {
 		return Min(s)
@@ -68,7 +67,6 @@ func ParMin[S ~[]E, E constraints.Ordered](slice S) E {
 // The cmp function should return a negative integer if a is considered less than b,
 // a positive integer if a is considered greater than b, and zero if a is considered equal to b.
 // If several values of the slice are equal to the smallest value, it returns the first such value.
-// Note: ParMinFunc is generally faster than MinFunc for slices with length greater than approximately 10,000 elements.
 func ParMinFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) E {
 	result := Do(slice, 0, func(s S, _, _ int) E {
 		return MinFunc(s, cmp)
@@ -121,7 +119,6 @@ func MaxFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) E {
 }
 
 // ParMax returns the largest element in the slice using parallel processing.
-// Note: ParMax is generally faster than Max for slices with length greater than approximately 130,000 elements.
 func ParMax[S ~[]E, E constraints.Ordered](slice S) E {
 	result := Do(slice, 0, func(s S, _, _ int) E {
 		return Max(s)
@@ -134,7 +131,6 @@ func ParMax[S ~[]E, E constraints.Ordered](slice S) E {
 // The cmp function should return a positive integer if a is considered greater than b,
 // a negative integer if a is considered less than b, and zero if a is considered equal to b.
 // If several values of the slice are equal to the largest value, it returns the first such value.
-// Note: ParMaxFunc is generally faster than MaxFunc for slices with length greater than approximately 10,000 elements.
 func ParMaxFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) E {
 	result := Do(slice, 0, func(s S, _, _ int) E {
 		return MaxFunc(s, cmp)
@@ -158,7 +154,6 @@ func Find[E any](slice []E, predicate func(item E) bool) (E, bool) {
 
 // ParFind returns the first element in the slice that satisfies the predicate function using parallel processing.
 // It returns the found element and true if an element is found, otherwise it returns the zero value of E and false.
-// Note: ParFind is generally faster than Find for slices with length greater than approximately 1,000,000,000 elements.
 func ParFind[E any](slice []E, predicate func(item E) bool) (E, bool) {
 	var mask uint64 = 0
 

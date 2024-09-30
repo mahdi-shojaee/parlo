@@ -33,7 +33,6 @@ func Filter[S ~[]E, E any](slice S, predicate func(item E, index int) bool) S {
 
 // ParFilter applies a predicate function to each element of the input slice in parallel
 // and returns a new slice containing only the elements for which the predicate returns true.
-// Note: ParFilter is generally faster than Filter for slices with length greater than approximately 12,000 elements.
 func ParFilter[S ~[]E, E any](slice S, predicate func(item E, index int) bool) S {
 	chunkResults := Do(slice, 0, func(chunk S, _, _ int) []E {
 		return Filter(chunk, predicate)
@@ -88,7 +87,6 @@ func Equal[S ~[]E, E comparable](a S, b S) bool {
 }
 
 // ParEqual checks if two slices are equal in parallel.
-// Note: ParEqual is generally faster than IsEqual for slices with length greater than approximately 100,000 elements.
 func ParEqual[S ~[]E, E comparable](a S, b S) bool {
 	if len(a) != len(b) {
 		return false
@@ -186,7 +184,6 @@ func IsSortedFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) bool {
 
 // ParIsSorted checks if the input slice is sorted in ascending order in parallel.
 // It returns true if the slice is sorted, false otherwise.
-// Note: ParIsSorted is generally faster than IsSorted for slices with length greater than approximately 55,000 elements.
 func ParIsSorted[S ~[]E, E constraints.Ordered](slice S) bool {
 	if len(slice) <= 1 {
 		return true
@@ -255,7 +252,6 @@ func ParIsSorted[S ~[]E, E constraints.Ordered](slice S) bool {
 // The cmp function should return a negative integer if a is considered less than b,
 // a positive integer if a is considered greater than b, and zero if a is considered equal to b.
 // It returns true if the slice is sorted, false otherwise.
-// Note: ParIsSortedFunc is generally faster than IsSortedFunc for slices with length greater than approximately 20,000 elements.
 func ParIsSortedFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) bool {
 	if len(slice) <= 1 {
 		return true
@@ -341,7 +337,6 @@ func IsSortedDesc[S ~[]E, E constraints.Ordered](slice S) bool {
 
 // ParIsSortedDesc checks if the input slice is sorted in descending order in parallel.
 // It returns true if the slice is sorted, false otherwise.
-// Note: ParIsSorted is generally faster than IsSorted for slices with length greater than approximately 55,000 elements.
 func ParIsSortedDesc[S ~[]E, E constraints.Ordered](slice S) bool {
 	if len(slice) <= 1 {
 		return true
@@ -422,7 +417,6 @@ func Reverse[S ~[]E, E any](slice S) {
 }
 
 // ParReverse reverses the elements of the input slice in parallel.
-// Note: ParReverse is generally faster than Reverse for slices with length greater than approximately 600,000 elements.
 func ParReverse[S ~[]E, E any](slice S) {
 	l := len(slice)
 
@@ -477,7 +471,6 @@ func SortStableFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) {
 
 // ParSort performs a parallel sort on the given slice in ascending order.
 // The slice must contain elements that satisfy the constraints.Ordered interface.
-// Note: For small slices, this method may not be more efficient than a sequential sort.
 func ParSort[S ~[]E, E constraints.Ordered](slice S) {
 	isSortedDesc := ParIsSortedDesc(slice)
 
@@ -525,7 +518,6 @@ func ParSort[S ~[]E, E constraints.Ordered](slice S) {
 }
 
 // ParSortFunc performs a parallel sort on the given slice using a custom comparison function.
-// Note: For small slices, this method may not be more efficient than a sequential sort.
 func ParSortFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) {
 	isSortedDesc := ParIsSortedFunc(slice, func(a E, b E) int { return cmp(b, a) })
 
@@ -574,7 +566,6 @@ func ParSortFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) {
 
 // ParSortStableFunc performs a parallel stable sort on the given slice using a custom comparison function.
 // It maintains the relative order of equal elements while sorting in parallel for improved performance.
-// Note: For small slices, this method may not be more efficient than a sequential stable sort.
 func ParSortStableFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) {
 	parSortStableByMerge(slice, minHeapMergeStableFunc[S, E], cmp)
 }
