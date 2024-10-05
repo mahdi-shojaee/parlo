@@ -1,15 +1,16 @@
-package parlo_test
+package benchcases_test
 
 import (
 	"fmt"
 	"testing"
 
 	"github.com/mahdi-shojaee/parlo"
+	benchcore "github.com/mahdi-shojaee/parlo/charts/benchcore"
 )
 
-func BenchmarkMinVsParMin(b *testing.B) {
-	sizes := []int{0, 1_000, 10_000, 30_000, 50_000, 100_000, 200_000, 500_000, 1_000_000}
-	bigSlice := MakeCollection(Max(sizes), 0.0, func(index int) Elem { return Elem(index) })
+func BenchmarkMin(b *testing.B) {
+	sizes := []int{0, 10_000, 100_000, 150_000, 200_000, 1_000_000}
+	bigSlice := benchcore.MakeCollection[[]int](parlo.Max(sizes), 0.0, func(index int) int { return index })
 
 	for _, size := range sizes {
 		slice := bigSlice[:size]
@@ -30,26 +31,22 @@ func BenchmarkMinVsParMin(b *testing.B) {
 	}
 }
 
-func BenchmarkMinFuncVsParMinFunc(b *testing.B) {
-	sizes := []int{5_000, 9_000, 10_000, 100_000, 200_000, 500_000, 1_000_000}
-	bigSlice := MakeCollection(Max(sizes), 0.0, func(index int) Elem { return Elem(index) })
+func BenchmarkMinFunc(b *testing.B) {
+	sizes := []int{0, 10_000, 100_000, 150_000, 200_000, 1_000_000}
+	bigSlice := benchcore.MakeCollection[[]int](parlo.Max(sizes), 0.0, func(index int) int { return index })
 
 	for _, size := range sizes {
 		slice := bigSlice[:size]
 
 		b.Run(fmt.Sprintf("parlo.MinFunc-Len=%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				parlo.MinFunc(slice, func(a, b Elem) int {
-					return int(a) - int(b)
-				})
+				parlo.MinFunc(slice, func(a, b int) int { return a - b })
 			}
 		})
 
 		b.Run(fmt.Sprintf("parlo.ParMinFunc-Len=%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				parlo.ParMinFunc(slice, func(a, b Elem) int {
-					return int(a) - int(b)
-				})
+				parlo.ParMinFunc(slice, func(a, b int) int { return a - b })
 			}
 		})
 
@@ -57,9 +54,9 @@ func BenchmarkMinFuncVsParMinFunc(b *testing.B) {
 	}
 }
 
-func BenchmarkMaxVsParMax(b *testing.B) {
+func BenchmarkMax(b *testing.B) {
 	sizes := []int{100_000, 130_000, 150_000, 180_000, 200_000, 210_000, 220_000, 250_000, 300_000, 500_000, 1_000_000}
-	bigSlice := MakeCollection(Max(sizes), 0.0, func(index int) Elem { return Elem(index) })
+	bigSlice := benchcore.MakeCollection[[]int](parlo.Max(sizes), 0.0, func(index int) int { return index })
 
 	for _, size := range sizes {
 		slice := bigSlice[:size]
@@ -80,25 +77,25 @@ func BenchmarkMaxVsParMax(b *testing.B) {
 	}
 }
 
-func BenchmarkMaxFuncVsParMaxFunc(b *testing.B) {
+func BenchmarkMaxFunc(b *testing.B) {
 	sizes := []int{5_000, 9_000, 10_000, 100_000, 200_000, 500_000, 1_000_000}
-	bigSlice := MakeCollection(Max(sizes), 0.0, func(index int) Elem { return Elem(index) })
+	bigSlice := benchcore.MakeCollection[[]int](parlo.Max(sizes), 0.0, func(index int) int { return index })
 
 	for _, size := range sizes {
 		slice := bigSlice[:size]
 
 		b.Run(fmt.Sprintf("parlo.MaxFunc-Len=%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				parlo.MaxFunc(slice, func(a, b Elem) int {
-					return int(a) - int(b)
+				parlo.MaxFunc(slice, func(a, b int) int {
+					return a - b
 				})
 			}
 		})
 
 		b.Run(fmt.Sprintf("parlo.ParMaxFunc-Len=%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				parlo.ParMaxFunc(slice, func(a, b Elem) int {
-					return int(a) - int(b)
+				parlo.ParMaxFunc(slice, func(a, b int) int {
+					return a - b
 				})
 			}
 		})
@@ -107,25 +104,25 @@ func BenchmarkMaxFuncVsParMaxFunc(b *testing.B) {
 	}
 }
 
-func BenchmarkFindVsParFind(b *testing.B) {
+func BenchmarkFind(b *testing.B) {
 	sizes := []int{100_000, 500_000, 1_000_000, 10_000_000, 100_000_000, 1_000_000_000, 2_000_000_000}
-	bigSlice := MakeCollection(Max(sizes), 0.0, func(index int) Elem { return Elem(index) })
+	bigSlice := benchcore.MakeCollection[[]int](parlo.Max(sizes), 0.0, func(index int) int { return index })
 
 	for _, size := range sizes {
 		slice := bigSlice[:size]
 
 		b.Run(fmt.Sprintf("parlo.Find-Len=%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				parlo.Find(slice, func(a Elem) bool {
-					return a == Elem(size)
+				parlo.Find(slice, func(a int) bool {
+					return a == size
 				})
 			}
 		})
 
 		b.Run(fmt.Sprintf("parlo.ParFind-Len=%d", size), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				parlo.ParFind(slice, func(a Elem) bool {
-					return a == Elem(size)
+				parlo.ParFind(slice, func(a int) bool {
+					return a == size
 				})
 			}
 		})

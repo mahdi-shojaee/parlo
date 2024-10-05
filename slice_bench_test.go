@@ -26,7 +26,7 @@ func BenchmarkFilterVsParFilter(b *testing.B) {
 		}
 
 		for _, f := range fns {
-			b.Run(fmt.Sprintf("%s-Size%d", f.name, size), func(b *testing.B) {
+			b.Run(fmt.Sprintf("%s-Len=%d", f.name, size), func(b *testing.B) {
 				for i := 0; i < b.N; i++ {
 					f.fn(slice, func(item Elem, index int) bool {
 						return item%2 == 0
@@ -55,7 +55,7 @@ func BenchmarkIsSortedVsParIsSorted(b *testing.B) {
 		}
 
 		for _, f := range fns {
-			b.Run(fmt.Sprintf("%s-Size%d", f.name, size), func(b *testing.B) {
+			b.Run(fmt.Sprintf("%s-Len=%d", f.name, size), func(b *testing.B) {
 				for i := 0; i < b.N; i++ {
 					f.fn(slice)
 				}
@@ -85,7 +85,7 @@ func BenchmarkIsSortedVsParIsSortedTwoFirstElemsSwapped(b *testing.B) {
 		}
 
 		for _, f := range fns {
-			b.Run(fmt.Sprintf("%s-Size%d", f.name, size), func(b *testing.B) {
+			b.Run(fmt.Sprintf("%s-Len=%d", f.name, size), func(b *testing.B) {
 				for i := 0; i < b.N; i++ {
 					f.fn(slice)
 				}
@@ -113,7 +113,7 @@ func BenchmarkIsSortedFuncVsParIsSortedFunc(b *testing.B) {
 		}
 
 		for _, f := range fns {
-			b.Run(fmt.Sprintf("%s-Size%d", f.name, size), func(b *testing.B) {
+			b.Run(fmt.Sprintf("%s-Len=%d", f.name, size), func(b *testing.B) {
 				for i := 0; i < b.N; i++ {
 					f.fn(slice, func(a, b Elem) int {
 						return int(a - b)
@@ -144,7 +144,7 @@ func BenchmarkIsSortedFuncVsParIsSortedFuncTwoFirstElemsSwapped(b *testing.B) {
 		}
 
 		for _, f := range fns {
-			b.Run(fmt.Sprintf("%s-Size%d", f.name, size), func(b *testing.B) {
+			b.Run(fmt.Sprintf("%s-Len=%d", f.name, size), func(b *testing.B) {
 				for i := 0; i < b.N; i++ {
 					f.fn(slice, func(a, b Elem) int {
 						return int(a - b)
@@ -174,7 +174,7 @@ func BenchmarkReverseVsParReverse(b *testing.B) {
 		}
 
 		for _, f := range fns {
-			b.Run(fmt.Sprintf("%s-Size%d", f.name, size), func(b *testing.B) {
+			b.Run(fmt.Sprintf("%s-Len=%d", f.name, size), func(b *testing.B) {
 				for i := 0; i < b.N; i++ {
 					f.fn(slice)
 				}
@@ -201,7 +201,7 @@ func BenchmarkEqualVsParEqual(b *testing.B) {
 		}
 
 		for _, f := range fns {
-			b.Run(fmt.Sprintf("%s-Size%d", f.name, size), func(b *testing.B) {
+			b.Run(fmt.Sprintf("%s-Len=%d", f.name, size), func(b *testing.B) {
 				for i := 0; i < b.N; i++ {
 					f.fn(slice, slice)
 				}

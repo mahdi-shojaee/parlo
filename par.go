@@ -1,9 +1,8 @@
 package parlo
 
 import (
+	"runtime"
 	"sync"
-
-	"github.com/mahdi-shojaee/parlo/internal/utils"
 )
 
 // Do is a generic function that applies a callback function to each chunk of the input slice in parallel.
@@ -18,24 +17,32 @@ func Do[S ~[]E, E, R any](
 	numThreads int,
 	cb func(chunk S, index, chunkStartIndex int) R,
 ) []R {
-	threads := utils.NumThreads(numThreads)
-
-	if len(slice) <= threads {
-		threads = len(slice)
+	if len(slice) == 0 {
+		return []R{cb(S{}, 0, 0)}
 	}
 
-	result := make([]R, threads)
+	numCPU := GOMAXPROCS()
 
-	chunkSize := len(slice) / threads
+	if numThreads <= 0 || numThreads > numCPU {
+		numThreads = numCPU
+	}
+
+	if len(slice) <= numThreads {
+		numThreads = len(slice)
+	}
+
+	result := make([]R, numThreads)
+
+	chunkSize := len(slice) / numThreads
 
 	s := slice
 
 	var wg sync.WaitGroup
-	wg.Add(threads)
+	wg.Add(numThreads)
 
-	for i := 0; i < threads; i++ {
+	for i := 0; i < numThreads; i++ {
 		endIndex := chunkSize
-		if i == threads-1 {
+		if i == numThreads-1 {
 			endIndex = len(s)
 		}
 
@@ -51,4 +58,8 @@ func Do[S ~[]E, E, R any](
 	wg.Wait()
 
 	return result
+}
+
+func GOMAXPROCS() int {
+	return runtime.GOMAXPROCS(0)
 }
