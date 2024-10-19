@@ -106,30 +106,3 @@ func BenchmarkMaxFuncVsParMaxFunc(b *testing.B) {
 		fmt.Println()
 	}
 }
-
-func BenchmarkFindVsParFind(b *testing.B) {
-	sizes := []int{100_000, 500_000, 1_000_000, 10_000_000, 100_000_000, 1_000_000_000, 2_000_000_000}
-	bigSlice := MakeCollection(Max(sizes), 0.0, func(index int) Elem { return Elem(index) })
-
-	for _, size := range sizes {
-		slice := bigSlice[:size]
-
-		b.Run(fmt.Sprintf("parlo.Find-Len=%d", size), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				parlo.Find(slice, func(a Elem) bool {
-					return a == Elem(size)
-				})
-			}
-		})
-
-		b.Run(fmt.Sprintf("parlo.ParFind-Len=%d", size), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				parlo.ParFind(slice, func(a Elem) bool {
-					return a == Elem(size)
-				})
-			}
-		})
-
-		fmt.Println()
-	}
-}

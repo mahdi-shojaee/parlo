@@ -1,15 +1,8 @@
 package parlo
 
 import (
-	"sync/atomic"
-
 	"github.com/mahdi-shojaee/parlo/internal/constraints"
 )
-
-type parFindChunkResult[E any] struct {
-	value E
-	ok    bool
-}
 
 // Min returns the smallest element in the slice.
 // If the slice is empty, it returns the zero value of type E.
@@ -150,37 +143,4 @@ func Find[E any](slice []E, predicate func(item E) bool) (E, bool) {
 
 	var result E
 	return result, false
-}
-
-// ParFind returns the first element in the slice that satisfies the predicate function using parallel processing.
-// It returns the found element and true if an element is found, otherwise it returns the zero value of E and false.
-func ParFind[E any](slice []E, predicate func(item E) bool) (E, bool) {
-	var mask uint64 = 0
-
-	results := Do(slice, 0, func(chunk []E, index int, chunkStartIndex int) parFindChunkResult[E] {
-		for _, v := range chunk {
-			if atomic.LoadUint64(&mask)>>(64-index) != 0 {
-				// Found by prev chunks
-				var zero E
-				return parFindChunkResult[E]{zero, false}
-			}
-			if predicate(v) {
-				// Found, So set the related bit in flag
-				atomic.AddUint64(&mask, 1<<(63-index))
-				return parFindChunkResult[E]{v, true}
-			}
-		}
-
-		var result E
-		return parFindChunkResult[E]{result, false}
-	})
-
-	for _, v := range results {
-		if v.ok {
-			return v.value, true
-		}
-	}
-
-	var zero E
-	return zero, false
 }
