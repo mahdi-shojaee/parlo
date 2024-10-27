@@ -2,7 +2,6 @@ package parlo
 
 import (
 	"cmp"
-	"runtime"
 	"sync"
 	"sync/atomic"
 
@@ -106,7 +105,42 @@ func ParEqual[S ~[]E, E comparable](a S, b S) bool {
 	return true
 }
 
-func IsSortedChunksSorted[S ~[]E, E constraints.Ordered](sortedChunks []S) bool {
+// EqualFunc checks if two slices are equal according to a comparison function.
+func EqualFunc[S ~[]E, E any](a S, b S, eq func(a, b E) bool) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i := 0; i < len(a); i++ {
+		if !eq(a[i], b[i]) {
+			return false
+		}
+	}
+
+	return true
+}
+
+// ParEqualFunc checks if two slices are equal in parallel according to a comparison function.
+func ParEqualFunc[S ~[]E, E any](a S, b S, eq func(a, b E) bool) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	result := Do(a, 0, func(chunk S, _, chunkStartIndex int) bool {
+		other := b[chunkStartIndex : chunkStartIndex+len(chunk)]
+		return EqualFunc(chunk, other, eq)
+	})
+
+	for _, r := range result {
+		if !r {
+			return false
+		}
+	}
+
+	return true
+}
+
+func isSortedChunksSorted[S ~[]E, E constraints.Ordered](sortedChunks []S) bool {
 	chunks := Filter(sortedChunks, func(chunk S, index int) bool {
 		return len(chunk) > 0
 	})
@@ -124,7 +158,7 @@ func IsSortedChunksSorted[S ~[]E, E constraints.Ordered](sortedChunks []S) bool 
 	return true
 }
 
-func IsSortedChunksSortedBy[S ~[]E, E any](sortedChunks []S, cmp func(a, b E) int) bool {
+func isSortedChunksSortedBy[S ~[]E, E any](sortedChunks []S, cmp func(a, b E) int) bool {
 	chunks := Filter(sortedChunks, func(chunk S, index int) bool {
 		return len(chunk) > 0
 	})
@@ -479,7 +513,7 @@ func ParSort[S ~[]E, E constraints.Ordered](slice S) {
 		return
 	}
 
-	numThreads := runtime.NumCPU()
+	numThreads := GOMAXPROCS()
 
 	chunks := Do(slice, numThreads, func(chunk S, _, _ int) []E {
 		if IsSorted(chunk) {
@@ -497,7 +531,7 @@ func ParSort[S ~[]E, E constraints.Ordered](slice S) {
 		return len(chunk) > 0
 	})
 
-	if IsSortedChunksSorted(chunks) {
+	if isSortedChunksSorted(chunks) {
 		return
 	}
 
@@ -509,7 +543,7 @@ func ParSort[S ~[]E, E constraints.Ordered](slice S) {
 		return cmp.Compare(a[0], b[0])
 	})
 
-	if IsSortedChunksSorted(chunksCopy) {
+	if isSortedChunksSorted(chunksCopy) {
 		parCopyChunks(slice, chunksCopy)
 		return
 	}
@@ -526,7 +560,7 @@ func ParSortFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) {
 		return
 	}
 
-	numThreads := runtime.NumCPU()
+	numThreads := GOMAXPROCS()
 
 	chunks := Do(slice, numThreads, func(chunk S, _, _ int) []E {
 		if IsSortedFunc(chunk, cmp) {
@@ -544,7 +578,7 @@ func ParSortFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) {
 		return len(chunk) > 0
 	})
 
-	if IsSortedChunksSortedBy(chunks, cmp) {
+	if isSortedChunksSortedBy(chunks, cmp) {
 		return
 	}
 
@@ -556,7 +590,7 @@ func ParSortFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) {
 		return cmp(a[0], b[0])
 	})
 
-	if IsSortedChunksSortedBy(chunksCopy, cmp) {
+	if isSortedChunksSortedBy(chunksCopy, cmp) {
 		parCopyChunks(slice, chunksCopy)
 		return
 	}
@@ -575,7 +609,7 @@ func parSortStableByMerge[S ~[]E, E any](
 	merge func(sortedChunks []S, dest S, cmp func(a, b E) int),
 	cmp func(a, b E) int,
 ) {
-	numThreads := utils.NumThreads(runtime.NumCPU())
+	numThreads := utils.NumThreads(GOMAXPROCS())
 
 	chunks := Do(slice, numThreads, func(chunk S, _, _ int) S {
 		SortStableFunc(chunk, cmp)
@@ -586,7 +620,7 @@ func parSortStableByMerge[S ~[]E, E any](
 		return len(chunk) > 0
 	})
 
-	if IsSortedChunksSortedBy(chunks, cmp) {
+	if isSortedChunksSortedBy(chunks, cmp) {
 		return
 	}
 
@@ -893,7 +927,7 @@ func parMergeByMerge[S ~[]E, E constraints.Ordered](
 		return
 	}
 
-	numThreads := utils.NumThreads(runtime.NumCPU())
+	numThreads := utils.NumThreads(GOMAXPROCS())
 
 	if numThreads == 1 {
 		merge(sortedChunks, dest)
@@ -1007,7 +1041,7 @@ func parMergeByMergeFunc[S ~[]E, E any](
 		return
 	}
 
-	numThreads := utils.NumThreads(runtime.NumCPU())
+	numThreads := utils.NumThreads(GOMAXPROCS())
 
 	if numThreads == 1 {
 		merge(sortedChunks, dest, cmp)

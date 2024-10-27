@@ -122,6 +122,62 @@ func TestParEqual(t *testing.T) {
 	}
 }
 
+func TestEqualFunc(t *testing.T) {
+	testCases := []struct {
+		a        Elems
+		b        Elems
+		expected bool
+	}{
+		{Elems{2, 1, 8, 3}, Elems{2, 1, 8, 3}, true},
+		{Elems{1, 2, 3, 4, 5}, Elems{1, 2, 3, 4, 5}, true},
+		{Elems{4, 3, 2, 1, 8, 9}, Elems{4, 3, 2, 1, 8, 9}, true},
+		{Elems{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, Elems{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, true},
+		{Elems{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}, Elems{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}, true},
+		{Elems{1, 2, 3, 4, 5}, Elems{1, 2, 3, 4, 6}, false},
+		{Elems{1, 2, 3, 4, 5}, Elems{1, 2, 3, 4, 5, 6}, false},
+		{Elems{1, 2, 3, 4, 5}, Elems{1, 2, 3, 4}, false},
+		{Elems{1, 2, 3, 4, 5}, Elems{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, false},
+	}
+
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("should return %t", tc.expected), func(t *testing.T) {
+			expected := tc.expected
+			actual := parlo.EqualFunc(tc.a, tc.b, func(a, b Elem) bool {
+				return a == b
+			})
+			assert.Equal(t, expected, actual)
+		})
+	}
+}
+
+func TestParEqualFunc(t *testing.T) {
+	testCases := []struct {
+		a        Elems
+		b        Elems
+		expected bool
+	}{
+		{Elems{2, 1, 8, 3}, Elems{2, 1, 8, 3}, true},
+		{Elems{1, 2, 3, 4, 5}, Elems{1, 2, 3, 4, 5}, true},
+		{Elems{4, 3, 2, 1, 8, 9}, Elems{4, 3, 2, 1, 8, 9}, true},
+		{Elems{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, Elems{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, true},
+		{Elems{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}, Elems{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}, true},
+		{Elems{1, 2, 3, 4, 5}, Elems{1, 2, 3, 4, 6}, false},
+		{Elems{1, 2, 3, 4, 5}, Elems{1, 2, 3, 4, 5, 6}, false},
+		{Elems{1, 2, 3, 4, 5}, Elems{1, 2, 3, 4}, false},
+		{Elems{1, 2, 3, 4, 5}, Elems{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, false},
+	}
+
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("should return %t", tc.expected), func(t *testing.T) {
+			expected := tc.expected
+			actual := parlo.ParEqualFunc(tc.a, tc.b, func(a, b Elem) bool {
+				return a == b
+			})
+			assert.Equal(t, expected, actual)
+		})
+	}
+}
+
 func TestIsSorted(t *testing.T) {
 	testCases := []struct {
 		slice    Elems
