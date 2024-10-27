@@ -10,10 +10,10 @@ import (
 	"github.com/mahdi-shojaee/parlo/internal/utils"
 )
 
-type isSortedChunkResult[E any] struct {
+type isSortedChunkResult[S ~[]E, E any] struct {
 	isSorted        bool
 	chunkStartIndex int
-	chunk           []E
+	chunk           S
 }
 
 type node[S ~[]E, E any] struct {
@@ -24,7 +24,7 @@ type node[S ~[]E, E any] struct {
 // Filter applies a predicate function to each element of the input slice
 // and returns a new slice containing only the elements for which the predicate returns true.
 func Filter[S ~[]E, E any](slice S, predicate func(item E, index int) bool) S {
-	result := make([]E, 0, len(slice))
+	result := make(S, 0, len(slice))
 
 	for i := 0; i < len(slice); i++ {
 		if predicate(slice[i], i) {
@@ -38,7 +38,7 @@ func Filter[S ~[]E, E any](slice S, predicate func(item E, index int) bool) S {
 // ParFilter applies a predicate function to each element of the input slice in parallel
 // and returns a new slice containing only the elements for which the predicate returns true.
 func ParFilter[S ~[]E, E any](slice S, predicate func(item E, index int) bool) S {
-	chunkResults := Do(slice, 0, func(chunk S, _, _ int) []E {
+	chunkResults := Do(slice, 0, func(chunk S, _, _ int) S {
 		return Filter(chunk, predicate)
 	})
 
@@ -48,7 +48,7 @@ func ParFilter[S ~[]E, E any](slice S, predicate func(item E, index int) bool) S
 		size += len(chunkResult)
 	}
 
-	result := make([]E, 0, size)
+	result := make(S, 0, size)
 
 	for _, chunkResult := range chunkResults {
 		result = append(result, chunkResult...)
@@ -57,7 +57,7 @@ func ParFilter[S ~[]E, E any](slice S, predicate func(item E, index int) bool) S
 	return result
 }
 
-func parCopyChunks[S ~[]E, E any](dest []E, chunks []S) {
+func parCopyChunks[S ~[]E, E any](dest S, chunks []S) {
 	destIndex := 0
 
 	var wg sync.WaitGroup
@@ -230,9 +230,9 @@ func ParIsSorted[S ~[]E, E constraints.Ordered](slice S) bool {
 
 	var end uint32 = 0
 
-	results := Do(slice, 0, func(chunk S, _, chunkStartIndex int) isSortedChunkResult[E] {
+	results := Do(slice, 0, func(chunk S, _, chunkStartIndex int) isSortedChunkResult[S, E] {
 		if len(chunk) <= 1 {
-			return isSortedChunkResult[E]{
+			return isSortedChunkResult[S, E]{
 				isSorted:        true,
 				chunkStartIndex: chunkStartIndex,
 				chunk:           chunk,
@@ -257,7 +257,7 @@ func ParIsSorted[S ~[]E, E constraints.Ordered](slice S) bool {
 			prev = v
 		}
 
-		return isSortedChunkResult[E]{
+		return isSortedChunkResult[S, E]{
 			isSorted:        isSorted,
 			chunkStartIndex: chunkStartIndex,
 			chunk:           chunk,
@@ -298,9 +298,9 @@ func ParIsSortedFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) bool {
 
 	var end uint32 = 0
 
-	results := Do(slice, 0, func(chunk S, _, chunkStartIndex int) isSortedChunkResult[E] {
+	results := Do(slice, 0, func(chunk S, _, chunkStartIndex int) isSortedChunkResult[S, E] {
 		if len(chunk) <= 1 {
-			return isSortedChunkResult[E]{
+			return isSortedChunkResult[S, E]{
 				isSorted:        true,
 				chunkStartIndex: chunkStartIndex,
 				chunk:           chunk,
@@ -325,7 +325,7 @@ func ParIsSortedFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) bool {
 			prev = v
 		}
 
-		return isSortedChunkResult[E]{
+		return isSortedChunkResult[S, E]{
 			isSorted:        isSorted,
 			chunkStartIndex: chunkStartIndex,
 			chunk:           chunk,
@@ -383,9 +383,9 @@ func ParIsSortedDesc[S ~[]E, E constraints.Ordered](slice S) bool {
 
 	var end uint32 = 0
 
-	results := Do(slice, 0, func(chunk S, _, chunkStartIndex int) isSortedChunkResult[E] {
+	results := Do(slice, 0, func(chunk S, _, chunkStartIndex int) isSortedChunkResult[S, E] {
 		if len(chunk) <= 1 {
-			return isSortedChunkResult[E]{
+			return isSortedChunkResult[S, E]{
 				isSorted:        true,
 				chunkStartIndex: chunkStartIndex,
 				chunk:           chunk,
@@ -410,7 +410,7 @@ func ParIsSortedDesc[S ~[]E, E constraints.Ordered](slice S) bool {
 			prev = v
 		}
 
-		return isSortedChunkResult[E]{
+		return isSortedChunkResult[S, E]{
 			isSorted:        isSorted,
 			chunkStartIndex: chunkStartIndex,
 			chunk:           chunk,
@@ -520,7 +520,7 @@ func ParSort[S ~[]E, E constraints.Ordered](slice S) {
 
 	numThreads := GOMAXPROCS()
 
-	chunks := Do(slice, numThreads, func(chunk S, _, _ int) []E {
+	chunks := Do(slice, numThreads, func(chunk S, _, _ int) S {
 		if IsSorted(chunk) {
 			return chunk
 		}
@@ -532,7 +532,7 @@ func ParSort[S ~[]E, E constraints.Ordered](slice S) {
 		return chunk
 	})
 
-	chunks = Filter(chunks, func(chunk []E, index int) bool {
+	chunks = Filter(chunks, func(chunk S, index int) bool {
 		return len(chunk) > 0
 	})
 
@@ -540,11 +540,11 @@ func ParSort[S ~[]E, E constraints.Ordered](slice S) {
 		return
 	}
 
-	chunksCopy := Do(chunks, len(chunks), func(chunk [][]E, _, _ int) []E {
+	chunksCopy := Do(chunks, len(chunks), func(chunk []S, _, _ int) S {
 		return slices.Clone(chunk[0])
 	})
 
-	slices.SortFunc(chunksCopy, func(a, b []E) int {
+	slices.SortFunc(chunksCopy, func(a, b S) int {
 		return cmp.Compare(a[0], b[0])
 	})
 
@@ -553,7 +553,7 @@ func ParSort[S ~[]E, E constraints.Ordered](slice S) {
 		return
 	}
 
-	parMergeByMerge(chunksCopy, slice, minHeapMerge[[]E, E])
+	parMergeByMerge(chunksCopy, slice, minHeapMerge[S, E])
 }
 
 // ParSortFunc performs a parallel sort on the given slice using a custom comparison function.
@@ -567,7 +567,7 @@ func ParSortFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) {
 
 	numThreads := GOMAXPROCS()
 
-	chunks := Do(slice, numThreads, func(chunk S, _, _ int) []E {
+	chunks := Do(slice, numThreads, func(chunk S, _, _ int) S {
 		if IsSortedFunc(chunk, cmp) {
 			return chunk
 		}
@@ -579,7 +579,7 @@ func ParSortFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) {
 		return chunk
 	})
 
-	chunks = Filter(chunks, func(chunk []E, index int) bool {
+	chunks = Filter(chunks, func(chunk S, index int) bool {
 		return len(chunk) > 0
 	})
 
@@ -587,11 +587,11 @@ func ParSortFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) {
 		return
 	}
 
-	chunksCopy := Do(chunks, len(chunks), func(chunk [][]E, _, _ int) []E {
+	chunksCopy := Do(chunks, len(chunks), func(chunk []S, _, _ int) S {
 		return slices.Clone(chunk[0])
 	})
 
-	slices.SortFunc(chunksCopy, func(a, b []E) int {
+	slices.SortFunc(chunksCopy, func(a, b S) int {
 		return cmp(a[0], b[0])
 	})
 
@@ -600,7 +600,7 @@ func ParSortFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) {
 		return
 	}
 
-	parMergeByMergeFunc(chunksCopy, slice, minHeapMergeFunc[[]E, E], cmp)
+	parMergeByMergeFunc(chunksCopy, slice, minHeapMergeFunc[S, E], cmp)
 }
 
 // ParSortStableFunc performs a parallel stable sort on the given slice using a custom comparison function.
@@ -1001,7 +1001,7 @@ func parMergeByMerge[S ~[]E, E constraints.Ordered](
 
 		if lastDestIndex < t {
 			wg.Add(1)
-			go func(chs []S, dst []E) {
+			go func(chs []S, dst S) {
 				merge(chs, dst)
 				wg.Done()
 			}(chunks, dest[lastDestIndex:t])
@@ -1022,7 +1022,7 @@ func parMergeByMerge[S ~[]E, E constraints.Ordered](
 	lastDestIndex++
 
 	wg.Add(1)
-	go func(chs []S, dst []E) {
+	go func(chs []S, dst S) {
 		merge(chs, dst)
 		wg.Done()
 	}(chunks, dest[lastDestIndex:])
@@ -1115,7 +1115,7 @@ func parMergeByMergeFunc[S ~[]E, E any](
 
 		if lastDestIndex < t {
 			wg.Add(1)
-			go func(chs []S, dst []E) {
+			go func(chs []S, dst S) {
 				merge(chs, dst, cmp)
 				wg.Done()
 			}(chunks, dest[lastDestIndex:t])
@@ -1136,7 +1136,7 @@ func parMergeByMergeFunc[S ~[]E, E any](
 	lastDestIndex++
 
 	wg.Add(1)
-	go func(chs []S, dst []E) {
+	go func(chs []S, dst S) {
 		merge(chs, dst, cmp)
 		wg.Done()
 	}(chunks, dest[lastDestIndex:])
