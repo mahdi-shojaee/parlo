@@ -28,4 +28,5 @@ jobs:
       run: go test -v ./...
 
     - name: Build Benchmark Results
+      working-directory: ./charts
       run: go run main.go -build
