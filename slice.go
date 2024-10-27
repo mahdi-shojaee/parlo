@@ -1,10 +1,10 @@
 package parlo
 
 import (
-	"cmp"
 	"sync"
 	"sync/atomic"
 
+	"github.com/mahdi-shojaee/parlo/internal/cmp"
 	"github.com/mahdi-shojaee/parlo/internal/constraints"
 	"github.com/mahdi-shojaee/parlo/internal/slices"
 	"github.com/mahdi-shojaee/parlo/internal/utils"
@@ -14,6 +14,11 @@ type isSortedChunkResult[E any] struct {
 	isSorted        bool
 	chunkStartIndex int
 	chunk           []E
+}
+
+type node[S ~[]E, E any] struct {
+	sortedChunk S
+	chunkIndex  int
 }
 
 // Filter applies a predicate function to each element of the input slice
@@ -818,15 +823,10 @@ func minHeapMergeStableFunc[S ~[]E, E any](sortedChunks []S, dest S, cmp func(a,
 		return
 	}
 
-	type Node struct {
-		sortedChunk S
-		chunkIndex  int
-	}
-
-	h := make([]Node, len(sortedChunks))
+	h := make([]node[S, E], len(sortedChunks))
 
 	for chunkIndex, sortedChunk := range sortedChunks {
-		h[chunkIndex] = Node{
+		h[chunkIndex] = node[S, E]{
 			sortedChunk: sortedChunk,
 			chunkIndex:  chunkIndex,
 		}
@@ -839,7 +839,7 @@ func minHeapMergeStableFunc[S ~[]E, E any](sortedChunks []S, dest S, cmp func(a,
 	// For initializing the min-heap, a sorting approach is used instead of heapify.
 	// While heapify is generally more efficient for building a heap, the small input size
 	// in this context (number of CPU cores) makes sorting a suitable and simpler option.
-	slices.SortStableFunc(h, func(a, b Node) int {
+	slices.SortStableFunc(h, func(a, b node[S, E]) int {
 		if len(a.sortedChunk) == 0 {
 			return 1
 		}

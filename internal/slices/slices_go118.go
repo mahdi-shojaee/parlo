@@ -3,9 +3,9 @@
 package slices
 
 import (
-	"cmp"
 	"sort"
 
+	"github.com/mahdi-shojaee/parlo/internal/cmp"
 	"github.com/mahdi-shojaee/parlo/internal/constraints"
 )
 
@@ -59,6 +59,20 @@ func Clone[S ~[]E, E any](s S) S {
 	return append(s[:0:0], s...)
 }
 
+// Grow increases the slice's capacity, if necessary, to guarantee space for
+// another n elements. After Grow(n), at least n elements can be appended
+// to the slice without another allocation. If n is negative or too large to
+// allocate the memory, Grow panics.
+func Grow[S ~[]E, E any](s S, n int) S {
+	if n < 0 {
+		panic("cannot be negative")
+	}
+	if n -= cap(s) - len(s); n > 0 {
+		s = append(s[:cap(s)], make([]E, n)...)[:len(s)]
+	}
+	return s
+}
+
 // Concat returns a new slice concatenating the passed in slices.
 func Concat[S ~[]E, E any](slices ...S) S {
 	size := 0
@@ -73,6 +87,12 @@ func Concat[S ~[]E, E any](slices ...S) S {
 		newslice = append(newslice, s...)
 	}
 	return newslice
+}
+
+// isNaN reports whether x is a NaN without requiring the math package.
+// This will always return false if T is not floating-point.
+func isNaN[T cmp.Ordered](x T) bool {
+	return x != x
 }
 
 // BinarySearch searches for target in a sorted slice and returns the earliest

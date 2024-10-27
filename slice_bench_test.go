@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	sls "slices"
-
 	"github.com/mahdi-shojaee/parlo"
 	"github.com/mahdi-shojaee/parlo/internal/slices"
 )
@@ -49,7 +47,6 @@ func BenchmarkIsSortedVsParIsSorted(b *testing.B) {
 			name string
 			fn   func(Elems) bool
 		}{
-			{"slices.IsSorted", sls.IsSorted[Elems]},
 			{"parlo.IsSorted", parlo.IsSorted[Elems]},
 			{"parlo.ParIsSorted", parlo.ParIsSorted[Elems]},
 		}
@@ -79,7 +76,6 @@ func BenchmarkIsSortedVsParIsSortedTwoFirstElemsSwapped(b *testing.B) {
 			name string
 			fn   func(Elems) bool
 		}{
-			{"slices.IsSorted", sls.IsSorted[Elems]},
 			{"parlo.IsSorted", parlo.IsSorted[Elems]},
 			{"parlo.ParIsSorted", parlo.ParIsSorted[Elems]},
 		}
@@ -107,7 +103,6 @@ func BenchmarkIsSortedFuncVsParIsSortedFunc(b *testing.B) {
 			name string
 			fn   func(Elems, func(Elem, Elem) int) bool
 		}{
-			{"slices.IsSortedFunc", sls.IsSortedFunc[Elems]},
 			{"parlo.IsSortedFunc", parlo.IsSortedFunc[Elems]},
 			{"parlo.ParIsSortedFunc", parlo.ParIsSortedFunc[Elems]},
 		}
@@ -138,7 +133,6 @@ func BenchmarkIsSortedFuncVsParIsSortedFuncTwoFirstElemsSwapped(b *testing.B) {
 			name string
 			fn   func(Elems, func(Elem, Elem) int) bool
 		}{
-			{"slices.IsSortedFunc", sls.IsSortedFunc[Elems]},
 			{"parlo.IsSortedFunc", parlo.IsSortedFunc[Elems]},
 			{"parlo.ParIsSortedFunc", parlo.ParIsSortedFunc[Elems]},
 		}
@@ -168,7 +162,6 @@ func BenchmarkReverseVsParReverse(b *testing.B) {
 			name string
 			fn   func(Elems)
 		}{
-			{"slices.Reverse", sls.Reverse[Elems]},
 			{"parlo.Reverse", parlo.Reverse[Elems]},
 			{"parlo.ParReverse", parlo.ParReverse[Elems]},
 		}
@@ -195,7 +188,6 @@ func BenchmarkEqualVsParEqual(b *testing.B) {
 			name string
 			fn   func(Elems, Elems) bool
 		}{
-			{"slices.Equal", sls.Equal[Elems]},
 			{"parlo.Equal", parlo.Equal[Elems]},
 			{"parlo.ParEqual", parlo.ParEqual[Elems]},
 		}
