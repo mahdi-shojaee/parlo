@@ -91,7 +91,7 @@ After running benchmarks, results are saved as JSON files in the `charts/benchma
 To view the results:
 
 1. Run `go run main.go -build` to generate the `benchmark-results.js` file.
-2. Open `charts/benchmark-results-viewer/benchmark-results.html` in a web browser.
+2. Open `charts/benchmark-results-viewer/index.html` in a web browser.
 
 The viewer provides interactive charts comparing the performance of sequential and parallel functions across different input sizes and scenarios.
 
