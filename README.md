@@ -4,6 +4,8 @@ Parlo is a Go library that provides utility functions for efficiently working wi
 
 ![ParSort Benchmark](charts/assets/parlo.ParSort.png)
 
+View all benchmark results at: [https://mahdi-shojaee.github.io/parlo/](https://mahdi-shojaee.github.io/parlo/)
+
 ### Key Advantages:
 
 * **Parallel Processing:** Parlo leverages Go's concurrency features to provide parallel versions of several functions. This allows you to utilize multiple CPU cores and significantly improve performance for large datasets.
@@ -67,7 +69,7 @@ cd charts
 go run main.go [options] [benchmark names...]
 ```
 
-Options:
+##### Options:
 - `-benchtime=<duration>`: Set the benchmark time for each test (default: 1s)
 
 Note: Some benchmarks like `Sort` may require longer benchmark times for accurate results. Adjust the `-benchtime` flag accordingly when running these benchmarks.
@@ -92,6 +94,8 @@ To view the results:
 
 1. Run `go run main.go -build` to generate the `benchmark-results.js` file.
 2. Open `charts/benchmark-results-viewer/index.html` in a web browser.
+
+You can also view the latest benchmark results online at: [https://mahdi-shojaee.github.io/parlo/](https://mahdi-shojaee.github.io/parlo/)
 
 The viewer provides interactive charts comparing the performance of sequential and parallel functions across different input sizes and scenarios.
 
