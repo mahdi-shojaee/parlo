@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parlo Benchmark Results</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="grid-container">
+      <header>
+        <div class="title-container">
+          <h1 class="full-title">Parlo Benchmark Results</h1>
+          <h1 class="short-title">Parlo Benchmarks</h1>
+        </div>
+        <div class="tab-bar">
+          <span class="tab-label">GOMAXPROCS:</span>
+          <button class="tab-button" data-cores="2">2</button>
+          <button class="tab-button" data-cores="4">4</button>
+          <button class="tab-button active" data-cores="8">8</button>
+        </div>
+      </header>
+      <nav id="sidebar">
+        <input type="text" id="search-bar" placeholder="Search functions..." />
+        <ul id="function-list"></ul>
+      </nav>
+      <main id="main-content">
+        <div id="benchmarks">
+          <!-- List of benchmark containers will be dynamically inserted here -->
+        </div>
+      </main>
+    </div>
+
+    <template id="benchmark-container-template">
+      <div class="benchmark-container">
+        <div class="benchmark-header">
+          <div class="benchmark-title"></div>
+        </div>
+        <div class="benchmark-content">
+          <div class="tab-content">
+            <!-- List of benchmark scenarios will be dynamically inserted here -->
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template class="benchmark-scenario-template">
+      <div class="benchmark-scenario">
+        <div class="benchmark-scenario-description"></div>
+        <div class="benchmark-scenario-content" data-cores="2">
+          <div class="benchmark-scenario-chart"></div>
+        </div>
+        <div
+          class="benchmark-scenario-content"
+          data-cores="4"
+          style="display: none"
+        >
+          <div class="benchmark-scenario-chart"></div>
+        </div>
+        <div
+          class="benchmark-scenario-content"
+          data-cores="8"
+          style="display: none"
+        >
+          <div class="benchmark-scenario-chart"></div>
+        </div>
+      </div>
+    </template>
+
+    <script src="echarts.min.js"></script>
+    <script src="chart.js"></script>
+    <script src="benchmark-results.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

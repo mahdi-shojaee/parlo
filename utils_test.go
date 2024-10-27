@@ -23,7 +23,7 @@ func Initialize[T any](slice []T, create func(n int) T) {
 }
 
 func InitializePar[T any](slice []T, create func(n int) T) {
-	threads := runtime.NumCPU()
+	threads := runtime.GOMAXPROCS(0)
 	chunkSize := len(slice) / threads
 
 	s := slice

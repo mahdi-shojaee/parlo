@@ -1,0 +1,210 @@
+# yaml-language-server: $schema=benchconfigs-schema.json
+
+Min:
+  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  baseFuncName: parlo.Min
+  funcName: parlo.ParMin
+  scenarios:
+    - description: Input is sorted in ascending order
+      elemType: int
+      elemAtIndex: index
+    - description: Input is sorted in descending order
+      elemType: int
+      elemAtIndex: size - index - 1
+
+MinFunc:
+  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  baseFuncName: parlo.MinFunc
+  funcName: parlo.ParMinFunc
+  scenarios:
+    - description: Input is sorted in ascending order
+      elemType: int
+      elemAtIndex: index
+      extraArgs: "func(a, b int) int { return a - b }"
+    - description: Input is sorted in descending order
+      elemType: int
+      elemAtIndex: size - index - 1
+      extraArgs: "func(a, b int) int { return a - b }"
+
+Max:
+  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  baseFuncName: parlo.Max
+  funcName: parlo.ParMax
+  scenarios:
+    - description: Input is sorted in ascending order
+      elemType: int
+      elemAtIndex: index
+    - description: Input is sorted in descending order
+      elemType: int
+      elemAtIndex: size - index - 1
+
+MaxFunc:
+  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  baseFuncName: parlo.MaxFunc
+  funcName: parlo.ParMaxFunc
+  scenarios:
+    - description: Input is sorted in ascending order
+      elemType: int
+      elemAtIndex: index
+      extraArgs: "func(a, b int) int { return a - b }"
+    - description: Input is sorted in descending order
+      elemType: int
+      elemAtIndex: size - index - 1
+      extraArgs: "func(a, b int) int { return a - b }"
+
+Filter:
+  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  baseFuncName: parlo.Filter
+  funcName: parlo.ParFilter
+  scenarios:
+    - description: No elements are accepted
+      elemType: int
+      elemAtIndex: index
+      extraArgs: "func(item int, index int) bool { return false }"
+    - description: Half of the elements are accepted
+      elemType: int
+      elemAtIndex: index
+      extraArgs: "func(item int, index int) bool { return item % 2 == 0 }"
+    - description: All elements are accepted
+      elemType: int
+      elemAtIndex: index
+      extraArgs: "func(item int, index int) bool { return true }"
+
+IsSorted:
+  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  baseFuncName: parlo.IsSorted
+  funcName: parlo.ParIsSorted
+  scenarios:
+    - description: Input is sorted in ascending order
+      elemType: int
+      elemAtIndex: index
+
+Equal:
+  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  baseFuncName: parlo.Equal
+  funcName: parlo.ParEqual
+  scenarios:
+    - description: Input is sorted in ascending order
+      elemType: int
+      elemAtIndex: index
+      extraArgs: slice
+
+EqualFunc:
+  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  baseFuncName: parlo.EqualFunc
+  funcName: parlo.ParEqualFunc
+  scenarios:
+    - description: Input is sorted in ascending order
+      elemType: int
+      elemAtIndex: index
+      extraArgs: "slice, func(a, b int) bool { return a == b }"
+
+Sort:
+  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  baseFuncName: parlo.Sort
+  funcName: parlo.ParSort
+  scenarios:
+    - description: Input is sorted in ascending order
+      elemType: int
+      elemAtIndex: index
+    - description: Input is sorted in descending order
+      elemType: int
+      elemAtIndex: size - index - 1
+    - description: Input is sorted ascendingly with 10% of elements randomly swapped
+      elemType: int
+      swapRatio: 0.1
+      elemAtIndex: index
+    - description: Input is sorted descendingly with 10% of elements randomly swapped
+      elemType: int
+      swapRatio: 0.1
+      elemAtIndex: size - index - 1
+    - description: Input is sorted ascendingly with 20% of elements randomly swapped
+      elemType: int
+      swapRatio: 0.2
+      elemAtIndex: index
+    - description: Input is sorted descendingly with 20% of elements randomly swapped
+      elemType: int
+      swapRatio: 0.2
+      elemAtIndex: size - index - 1
+    - description: Input is randomly generated
+      imports: [math/rand]
+      elemType: int
+      elemAtIndex: rand.Intn(size)
+
+SortFunc:
+  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000]
+  baseFuncName: parlo.SortFunc
+  funcName: parlo.ParSortFunc
+  scenarios:
+    - description: Input is sorted in ascending order
+      elemType: int
+      elemAtIndex: index
+      extraArgs: "func(a, b int) int { return a - b }"
+    - description: Input is sorted in descending order
+      elemType: int
+      elemAtIndex: size - index - 1
+      extraArgs: "func(a, b int) int { return a - b }"
+    - description: Input is sorted ascendingly with 10% of elements randomly swapped
+      elemType: int
+      swapRatio: 0.1
+      elemAtIndex: index
+      extraArgs: "func(a, b int) int { return a - b }"
+    - description: Input is sorted descendingly with 10% of elements randomly swapped
+      elemType: int
+      swapRatio: 0.1
+      elemAtIndex: size - index - 1
+      extraArgs: "func(a, b int) int { return a - b }"
+    - description: Input is sorted ascendingly with 20% of elements randomly swapped
+      elemType: int
+      swapRatio: 0.2
+      elemAtIndex: index
+      extraArgs: "func(a, b int) int { return a - b }"
+    - description: Input is sorted descendingly with 20% of elements randomly swapped
+      elemType: int
+      swapRatio: 0.2
+      elemAtIndex: size - index - 1
+      extraArgs: "func(a, b int) int { return a - b }"
+    - description: Input is randomly generated
+      imports: [math/rand]
+      elemType: int
+      elemAtIndex: rand.Intn(size)
+      extraArgs: "func(a, b int) int { return a - b }"
+
+SortStableFunc:
+  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000]
+  baseFuncName: parlo.SortStableFunc
+  funcName: parlo.ParSortStableFunc
+  scenarios:
+    - description: Input is sorted in ascending order
+      elemType: int
+      elemAtIndex: index
+      extraArgs: "func(a, b int) int { return a - b }"
+    - description: Input is sorted in descending order
+      elemType: int
+      elemAtIndex: size - index - 1
+      extraArgs: "func(a, b int) int { return a - b }"
+    - description: Input is sorted ascendingly with 10% of elements randomly swapped
+      elemType: int
+      swapRatio: 0.1
+      elemAtIndex: index
+      extraArgs: "func(a, b int) int { return a - b }"
+    - description: Input is sorted descendingly with 10% of elements randomly swapped
+      elemType: int
+      swapRatio: 0.1
+      elemAtIndex: size - index - 1
+      extraArgs: "func(a, b int) int { return a - b }"
+    - description: Input is sorted ascendingly with 20% of elements randomly swapped
+      elemType: int
+      swapRatio: 0.2
+      elemAtIndex: index
+      extraArgs: "func(a, b int) int { return a - b }"
+    - description: Input is sorted descendingly with 20% of elements randomly swapped
+      elemType: int
+      swapRatio: 0.2
+      elemAtIndex: size - index - 1
+      extraArgs: "func(a, b int) int { return a - b }"
+    - description: Input is randomly generated
+      imports: [math/rand]
+      elemType: int
+      elemAtIndex: rand.Intn(size)
+      extraArgs: "func(a, b int) int { return a - b }"

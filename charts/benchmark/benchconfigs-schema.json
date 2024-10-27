@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "patternProperties": {
+    "^[A-Za-z]+$": {
+      "type": "object",
+      "required": ["sizes", "baseFuncName", "funcName", "scenarios"],
+      "properties": {
+        "sizes": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0 }
+        },
+        "baseFuncName": { "type": "string" },
+        "funcName": { "type": "string" },
+        "scenarios": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["description", "elemType", "elemAtIndex"],
+            "properties": {
+              "description": { "type": "string" },
+              "elemType": { "type": "string" },
+              "elemAtIndex": { "type": "string" },
+              "extraArgs": { "type": "string" },
+              "swapRatio": { "type": "number", "minimum": 0, "maximum": 1 },
+              "imports": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

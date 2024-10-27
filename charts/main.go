@@ -4,20 +4,52 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"os/exec"
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/mahdi-shojaee/parlo"
-	"github.com/mahdi-shojaee/parlo/charts/benchcore"
+	"github.com/mahdi-shojaee/parlo/charts/benchmark"
 )
 
-type BenchmarkResultEntry struct {
-	benchmarkName   benchcore.BenchmarkName
-	benchmarkResult benchcore.BenchmarkResult
+func main() {
+	setupFlags()
+
+	benchmarkNames, err := getBenchmarkNames()
+	if err != nil {
+		color.Red("Error getting benchmark names: %v", err)
+		return
+	}
+
+	allErrors := runBenchmarks(benchmarkNames)
+
+	if len(allErrors) > 0 {
+		color.Red("Errors occurred during benchmarks:")
+		for _, err := range allErrors {
+			color.Red("- %v", err)
+		}
+		return
+	}
+
+	if err := benchmark.Build(); err != nil {
+		color.Red("Error building benchmark-results.js: %v", err)
+	}
 }
 
-func main() {
+func runBenchmarks(benchmarkNames []benchmark.BenchmarkName) []error {
+	var allErrors []error
+
+	benchmarkResults, errors := benchmark.RunBenchmarks(benchmarkNames)
+	if len(errors) > 0 {
+		allErrors = append(allErrors, errors...)
+	}
+
+	if err := benchmark.SaveResults(benchmarkResults); err != nil {
+		allErrors = append(allErrors, fmt.Errorf("error saving results: %v", err))
+	}
+
+	return allErrors
+}
+
+func setupFlags() {
 	// Custom usage message
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage:\n")
@@ -27,85 +59,47 @@ func main() {
 		fmt.Fprintf(os.Stderr, "\nExamples:\n")
 		fmt.Fprintf(os.Stderr, "  %s -all\n", "go run main.go")
 		fmt.Fprintf(os.Stderr, "  %s -benchmarktime=200ms Min MinFunc\n", "go run main.go")
+		fmt.Fprintf(os.Stderr, "  %s -build\n", "go run main.go")
 		fmt.Fprintf(os.Stderr, "\nAvailable benchmarks:\n")
-		for _, name := range benchcore.BenchmarkList() {
+		for _, name := range benchmark.BenchmarkList() {
 			fmt.Fprintf(os.Stderr, "  %s\n", string(name))
 		}
 	}
 
 	// Add a new flag for running all benchmarks
-	runAll := flag.Bool("all", false, "Run all available benchmarks")
+	flag.Bool("all", false, "Run all available benchmarks")
 	// Add the benchtime flag
-	benchtime := flag.Duration("benchtime", 1*time.Second, "Benchmark time for each test")
+	flag.Duration("benchtime", 1*time.Second, "Benchmark time for each test")
+	// Add the build flag
+	build := flag.Bool("build", false, "Build the benchmarks for the viewer")
 	flag.Parse()
 
-	// Get benchmark names from command-line arguments
-	benchmarkNames := flag.Args()
+	// Check if build flag is set
+	if *build {
+		benchmark.Build()
+		os.Exit(0)
+	}
+}
 
-	// If -all flag is set, use all available benchmark names
-	if *runAll {
+func getBenchmarkNames() ([]benchmark.BenchmarkName, error) {
+	runAll := flag.Lookup("all").Value.(flag.Getter).Get().(bool)
+
+	benchmarkNames := []benchmark.BenchmarkName{}
+	for _, arg := range flag.Args() {
+		benchmarkNames = append(benchmarkNames, benchmark.BenchmarkName(arg))
+	}
+
+	if runAll {
 		if len(benchmarkNames) > 0 {
-			fmt.Println("Warning: Individual benchmark names are ignored when using the -all flag.")
+			color.Yellow("Warning: Individual benchmark names are ignored when using the -all flag.")
 		}
 
-		for _, name := range benchcore.BenchmarkList() {
-			benchmarkNames = append(benchmarkNames, string(name))
-		}
+		benchmarkNames = benchmark.BenchmarkList()
 	}
 
 	if len(benchmarkNames) == 0 {
-		fmt.Println("Error: No benchmarks specified. Use -all to run all benchmarks or provide benchmark names.")
-		flag.Usage()
-		os.Exit(1)
+		return nil, fmt.Errorf("no benchmarks specified. Use -all to run all benchmarks or provide benchmark names")
 	}
 
-	// Run npm install command
-	cmd := exec.Command("npm", "install")
-
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Printf("Error running npm install: %v\n", err)
-		fmt.Println("Command output:", string(output))
-		return
-	}
-
-	fmt.Printf("Successfully ran npm install\n")
-
-	// Report the number of CPU cores that the runtime uses
-	numThreads := parlo.GOMAXPROCS()
-	fmt.Printf("Number of CPU cores: %d\n\n", numThreads)
-
-	benchmarkResults := make([]BenchmarkResultEntry, 0, len(benchmarkNames))
-
-	for _, bn := range benchmarkNames {
-		benchmarkName := benchcore.BenchmarkName(bn)
-
-		fmt.Printf("Running benchmarks for %q...\n", benchmarkName)
-		fmt.Println("----------------------------------------")
-
-		// Pass the benchtime parameter to RunBenchmark
-		benchmarkResult, err := benchcore.RunBenchmark(benchmarkName, *benchtime)
-		if err != nil {
-			c := color.New(color.FgRed)
-			c.Printf("Benchmark %q not found\n", benchmarkName)
-			fmt.Println()
-			continue
-		}
-
-		fmt.Println()
-
-		benchmarkResults = append(benchmarkResults, BenchmarkResultEntry{
-			benchmarkName:   benchmarkName,
-			benchmarkResult: benchmarkResult,
-		})
-	}
-
-	fmt.Println("Saving the results...")
-	fmt.Println("----------------------------------------")
-
-	for _, result := range benchmarkResults {
-		benchcore.UpdateBenchmarkResult(result.benchmarkResult, string(result.benchmarkName))
-		// benchcore.UpdateChart(string(result.benchmarkName))
-		fmt.Println()
-	}
+	return benchmarkNames, nil
 }
