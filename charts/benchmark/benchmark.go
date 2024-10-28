@@ -89,7 +89,7 @@ func init() {
 	currentDir := filepath.Dir(filename)
 
 	// Construct the path to the config file
-	configPath := filepath.Join(currentDir, "benchconfigs.yaml")
+	configPath := filepath.Join(currentDir, "benchconfigs.yml")
 
 	data, err := os.ReadFile(configPath)
 	if err != nil {

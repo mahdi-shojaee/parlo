@@ -62,7 +62,7 @@ Parlo includes a comprehensive benchmarking system to measure and compare the pe
 
 #### Defining Benchmarks
 
-Benchmarks are defined in the `charts/benchmark/benchconfigs.yaml` file. For detailed instructions on adding new benchmarks, please refer to the [Benchmark Configuration Guide](charts/benchmark/benchmark_configuration_guide.md).
+Benchmarks are defined in the `charts/benchmark/benchconfigs.yml` file. For detailed instructions on adding new benchmarks, please refer to the [Benchmark Configuration Guide](charts/benchmark/benchmark_configuration_guide.md).
 
 #### Running Benchmarks
 

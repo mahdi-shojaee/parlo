@@ -1,10 +1,10 @@
 # Benchmark Configuration Guide
 
-This guide explains how to define benchmarks and their scenarios in the `benchconfigs.yaml` file for the Parlo benchmarking system.
+This guide explains how to define benchmarks and their scenarios in the `benchconfigs.yml` file for the Parlo benchmarking system.
 
 ## Overview
 
-The `benchconfigs.yaml` file contains configurations for various benchmarks. Each benchmark is defined as a top-level key in the YAML file, with its configuration as a nested object.
+The `benchconfigs.yml` file contains configurations for various benchmarks. Each benchmark is defined as a top-level key in the YAML file, with its configuration as a nested object.
 
 ## Benchmark Configuration Structure
 
@@ -80,4 +80,4 @@ Min:
 
 ## Validation
 
-The `benchconfigs.yaml` file is validated against a JSON schema defined in `benchconfigs-schema.json`. Ensure your configurations comply with this schema to avoid errors during benchmark execution.
+The `benchconfigs.yml` file is validated against a JSON schema defined in `benchconfigs-schema.json`. Ensure your configurations comply with this schema to avoid errors during benchmark execution.
