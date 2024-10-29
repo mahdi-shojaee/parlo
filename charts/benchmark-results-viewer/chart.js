@@ -160,11 +160,11 @@ function renderChart(data, chartDom, numCore) {
   };
 
   function updateChartForScreenSize() {
-    const isSmallScreen = window.innerWidth < 1024;
+    const isSmallScreen = window.innerWidth < 1200;
     chart.setOption({
       xAxis: {
         axisLabel: {
-          rotate: isSmallScreen ? 20 : 0,
+          rotate: isSmallScreen ? 25 : 0,
         },
       },
     });
