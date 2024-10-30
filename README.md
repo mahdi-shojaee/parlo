@@ -83,8 +83,8 @@ Examples:
 # Run all benchmarks
 go run main.go -all
 
-# Run Sort and SortFunc benchmarks with a 200ms benchmark time
-go run main.go -benchtime=200ms Sort SortFunc
+# Run Sort and SortFunc benchmarks with a 4s benchmark time
+go run main.go -benchtime=4s Sort SortFunc
 
 # Generate the `benchmark-results.js` file for the viewer without running any benchmarks
 go run main.go -build
