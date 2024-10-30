@@ -343,6 +343,8 @@ func runScenarioBenchmark(templateConfig TemplateConfig, benchtime time.Duration
 			"^Benchmark"+string(templateConfig.Name)+"$",
 			"-benchtime",
 			benchtime.String(),
+			"-timeout",
+			"10h",
 			tmpFile.Name(),
 		)
 

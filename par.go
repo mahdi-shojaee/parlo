@@ -21,7 +21,7 @@ func Do[S ~[]E, E, R any](
 		return []R{cb(S{}, 0, 0)}
 	}
 
-	numCPU := GOMAXPROCS()
+	numCPU := runtime.GOMAXPROCS(0)
 
 	if numThreads <= 0 || numThreads > numCPU {
 		numThreads = numCPU
@@ -58,8 +58,4 @@ func Do[S ~[]E, E, R any](
 	wg.Wait()
 
 	return result
-}
-
-func GOMAXPROCS() int {
-	return runtime.GOMAXPROCS(0)
 }

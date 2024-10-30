@@ -5,7 +5,6 @@ Parlo is a Go library that provides utility functions for efficiently working wi
 [![Go Reference](https://pkg.go.dev/badge/github.com/mahdi-shojaee/parlo.svg)](https://pkg.go.dev/github.com/mahdi-shojaee/parlo)
 [![Tests](https://github.com/mahdi-shojaee/parlo/actions/workflows/test.yml/badge.svg)](https://github.com/mahdi-shojaee/parlo/actions/workflows/test.yml)
 
-
 ![ParSort Benchmark](charts/assets/parlo.ParSort.png)
 
 View all benchmark results at: [https://mahdi-shojaee.github.io/parlo/](https://mahdi-shojaee.github.io/parlo/)

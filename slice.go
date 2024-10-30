@@ -1,6 +1,7 @@
 package parlo
 
 import (
+	"runtime"
 	"sync"
 	"sync/atomic"
 
@@ -518,7 +519,7 @@ func ParSort[S ~[]E, E constraints.Ordered](slice S) {
 		return
 	}
 
-	numThreads := GOMAXPROCS()
+	numThreads := runtime.GOMAXPROCS(0)
 
 	chunks := Do(slice, numThreads, func(chunk S, _, _ int) S {
 		if IsSorted(chunk) {
@@ -565,7 +566,7 @@ func ParSortFunc[S ~[]E, E any](slice S, cmp func(a, b E) int) {
 		return
 	}
 
-	numThreads := GOMAXPROCS()
+	numThreads := runtime.GOMAXPROCS(0)
 
 	chunks := Do(slice, numThreads, func(chunk S, _, _ int) S {
 		if IsSortedFunc(chunk, cmp) {
@@ -614,7 +615,7 @@ func parSortStableByMerge[S ~[]E, E any](
 	merge func(sortedChunks []S, dest S, cmp func(a, b E) int),
 	cmp func(a, b E) int,
 ) {
-	numThreads := utils.NumThreads(GOMAXPROCS())
+	numThreads := utils.NumThreads(runtime.GOMAXPROCS(0))
 
 	chunks := Do(slice, numThreads, func(chunk S, _, _ int) S {
 		SortStableFunc(chunk, cmp)
@@ -927,7 +928,7 @@ func parMergeByMerge[S ~[]E, E constraints.Ordered](
 		return
 	}
 
-	numThreads := utils.NumThreads(GOMAXPROCS())
+	numThreads := utils.NumThreads(runtime.GOMAXPROCS(0))
 
 	if numThreads == 1 {
 		merge(sortedChunks, dest)
@@ -1041,7 +1042,7 @@ func parMergeByMergeFunc[S ~[]E, E any](
 		return
 	}
 
-	numThreads := utils.NumThreads(GOMAXPROCS())
+	numThreads := utils.NumThreads(runtime.GOMAXPROCS(0))
 
 	if numThreads == 1 {
 		merge(sortedChunks, dest, cmp)

@@ -100,7 +100,7 @@ EqualFunc:
       extraArgs: "slice, func(a, b int) bool { return a == b }"
 
 Sort:
-  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  sizes: [5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000]
   baseFuncName: parlo.Sort
   funcName: parlo.ParSort
   scenarios:
@@ -132,7 +132,7 @@ Sort:
       elemAtIndex: rand.Intn(size)
 
 SortFunc:
-  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000]
+  sizes: [5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000]
   baseFuncName: parlo.SortFunc
   funcName: parlo.ParSortFunc
   scenarios:
@@ -171,7 +171,7 @@ SortFunc:
       extraArgs: "func(a, b int) int { return a - b }"
 
 SortStableFunc:
-  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000]
+  sizes: [5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000]
   baseFuncName: parlo.SortStableFunc
   funcName: parlo.ParSortStableFunc
   scenarios:
