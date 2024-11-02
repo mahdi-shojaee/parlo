@@ -4,7 +4,7 @@
   "patternProperties": {
     "^[A-Za-z]+$": {
       "type": "object",
-      "required": ["sizes", "baseFuncName", "funcName", "scenarios"],
+      "required": ["sizes", "baseFuncName", "funcName", "scenarios", "immutable"],
       "properties": {
         "sizes": {
           "type": "array",
@@ -12,6 +12,8 @@
         },
         "baseFuncName": { "type": "string" },
         "funcName": { "type": "string" },
+        "typeArgs": { "type": "string" },
+        "mutable": { "type": "boolean" },
         "scenarios": {
           "type": "array",
           "items": {

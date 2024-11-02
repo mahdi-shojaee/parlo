@@ -29,6 +29,8 @@ type BenchmarkConfig struct {
 	Sizes        []int         `yaml:"sizes"`
 	BaseFuncName string        `yaml:"baseFuncName"`
 	FuncName     string        `yaml:"funcName"`
+	Immutable    bool          `yaml:"immutable"`
+	TypeArgs     string        `yaml:"typeArgs"`
 	Scenarios    []Scenario    `yaml:"scenarios"`
 }
 
@@ -46,6 +48,8 @@ type TemplateConfig struct {
 	Sizes        []int
 	BaseFuncName string
 	FuncName     string
+	Immutable    bool
+	TypeArgs     string
 	Scenario     Scenario
 }
 
@@ -286,6 +290,8 @@ func RunBenchmark(config BenchmarkConfig, benchtime time.Duration, progress *Pro
 			Sizes:        config.Sizes,
 			BaseFuncName: config.BaseFuncName,
 			FuncName:     config.FuncName,
+			TypeArgs:     config.TypeArgs,
+			Immutable:    config.Immutable,
 			Scenario:     scenario,
 		}
 		scenarioResult, err := runScenarioBenchmark(templateConfig, benchtime, progress)
@@ -414,8 +420,13 @@ func generateBenchmarkFile(config TemplateConfig) (*os.File, error) {
 		return nil, err
 	}
 
+	templatePath := "benchmark/mutable_benchmark_template.go.tmpl"
+	if config.Immutable {
+		templatePath = "benchmark/immutable_benchmark_template.go.tmpl"
+	}
+
 	// Load the template from a file
-	tmpl, err := template.ParseFiles("benchmark/benchmark_template.go.tmpl")
+	tmpl, err := template.ParseFiles(templatePath)
 	if err != nil {
 		os.Remove(tmpFile.Name())
 		return nil, err

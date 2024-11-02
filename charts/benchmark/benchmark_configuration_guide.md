@@ -23,7 +23,17 @@ Each benchmark configuration has the following structure:
 4. `funcName`: The name of the parallel function to benchmark.
    - Example: `parlo.ParMin`
 
-5. `scenarios`: An array of scenario configurations for the benchmark.
+5. `immutable`: A boolean indicating whether the function modifies its input slice.
+   - `true`: The function does not modify its input (e.g., Min, Max, Filter)
+   - `false`: The function modifies its input (e.g., Sort, SortFunc)
+   - Example: `immutable: true`
+
+6. `typeArgs` (optional): A string specifying the generic type arguments for functions that require them.
+   - Used for functions with multiple generic type parameters
+   - Format: Comma-separated list of Go types
+   - Example: `typeArgs: "[]int, []int"` for Map functions that convert between slice types
+
+7. `scenarios`: An array of scenario configurations for the benchmark.
 
 ### Scenario Configuration
 
@@ -60,6 +70,8 @@ Min:
   sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
   baseFuncName: parlo.Min
   funcName: parlo.ParMin
+  immutable: true
+  typeArgs: "[]int, []int"
   scenarios:
     - description: Input is sorted in ascending order
       elemType: int

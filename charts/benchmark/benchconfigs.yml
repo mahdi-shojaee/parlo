@@ -1,9 +1,10 @@
 # yaml-language-server: $schema=benchconfigs-schema.json
 
 Min:
-  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  sizes: [5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000]
   baseFuncName: parlo.Min
   funcName: parlo.ParMin
+  immutable: true
   scenarios:
     - description: Input is sorted in ascending order
       elemType: int
@@ -13,9 +14,10 @@ Min:
       elemAtIndex: size - index - 1
 
 MinFunc:
-  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  sizes: [5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000]
   baseFuncName: parlo.MinFunc
   funcName: parlo.ParMinFunc
+  immutable: true
   scenarios:
     - description: Input is sorted in ascending order
       elemType: int
@@ -27,9 +29,10 @@ MinFunc:
       extraArgs: "func(a, b int) int { return a - b }"
 
 Max:
-  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  sizes: [5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000]
   baseFuncName: parlo.Max
   funcName: parlo.ParMax
+  immutable: true
   scenarios:
     - description: Input is sorted in ascending order
       elemType: int
@@ -39,9 +42,10 @@ Max:
       elemAtIndex: size - index - 1
 
 MaxFunc:
-  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  sizes: [5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000]
   baseFuncName: parlo.MaxFunc
   funcName: parlo.ParMaxFunc
+  immutable: true
   scenarios:
     - description: Input is sorted in ascending order
       elemType: int
@@ -53,9 +57,10 @@ MaxFunc:
       extraArgs: "func(a, b int) int { return a - b }"
 
 Filter:
-  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  sizes: [5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000]
   baseFuncName: parlo.Filter
   funcName: parlo.ParFilter
+  immutable: true
   scenarios:
     - description: No elements are accepted
       elemType: int
@@ -71,18 +76,20 @@ Filter:
       extraArgs: "func(item int, index int) bool { return true }"
 
 IsSorted:
-  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  sizes: [5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000]
   baseFuncName: parlo.IsSorted
   funcName: parlo.ParIsSorted
+  immutable: true
   scenarios:
     - description: Input is sorted in ascending order
       elemType: int
       elemAtIndex: index
 
 Equal:
-  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  sizes: [5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000]
   baseFuncName: parlo.Equal
   funcName: parlo.ParEqual
+  immutable: true
   scenarios:
     - description: Input is sorted in ascending order
       elemType: int
@@ -90,9 +97,10 @@ Equal:
       extraArgs: slice
 
 EqualFunc:
-  sizes: [0, 10000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000]
+  sizes: [5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000]
   baseFuncName: parlo.EqualFunc
   funcName: parlo.ParEqualFunc
+  immutable: true
   scenarios:
     - description: Input is sorted in ascending order
       elemType: int
@@ -103,6 +111,7 @@ Sort:
   sizes: [5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000]
   baseFuncName: parlo.Sort
   funcName: parlo.ParSort
+  immutable: false
   scenarios:
     - description: Input is sorted in ascending order
       elemType: int
@@ -135,6 +144,7 @@ SortFunc:
   sizes: [5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000]
   baseFuncName: parlo.SortFunc
   funcName: parlo.ParSortFunc
+  immutable: false
   scenarios:
     - description: Input is sorted in ascending order
       elemType: int
@@ -174,6 +184,7 @@ SortStableFunc:
   sizes: [5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000]
   baseFuncName: parlo.SortStableFunc
   funcName: parlo.ParSortStableFunc
+  immutable: false
   scenarios:
     - description: Input is sorted in ascending order
       elemType: int
@@ -208,3 +219,15 @@ SortStableFunc:
       elemType: int
       elemAtIndex: rand.Intn(size)
       extraArgs: "func(a, b int) int { return a - b }"
+
+Map:
+  sizes: [5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000]
+  baseFuncName: parlo.Map
+  funcName: parlo.ParMap
+  immutable: true
+  typeArgs: "[]int, []int"
+  scenarios:
+    - description: Input is sorted in ascending order
+      elemType: int
+      elemAtIndex: index
+      extraArgs: "func(item int, index int) int { return item }"
