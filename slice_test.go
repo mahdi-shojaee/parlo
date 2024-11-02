@@ -635,3 +635,65 @@ func TestParSortStableFunc(t *testing.T) {
 		})
 	}
 }
+
+func TestMap(t *testing.T) {
+	type TestCase struct {
+		elems    Elems
+		expected Elems
+	}
+
+	testCases := []TestCase{
+		{Elems{2, 1, 8, 3}, Elems{4, 2, 16, 6}},
+		{Elems{1, 2, 3, 4, 5}, Elems{2, 4, 6, 8, 10}},
+		{Elems{4, 3, 2, 1, 8, 9}, Elems{8, 6, 4, 2, 16, 18}},
+	}
+
+	// Add larger test cases
+	for i := 0; i < 3; i++ {
+		testCases = append(testCases, TestCase{
+			elems:    MakeCollection(1_000, 0.0, func(index int) Elem { return Elem(index) }),
+			expected: MakeCollection(1_000, 0.0, func(index int) Elem { return Elem(index * 2) }),
+		})
+	}
+
+	for _, tc := range testCases {
+		t.Run("should return mapped slice", func(t *testing.T) {
+			expected := tc.expected
+			actual := parlo.Map[Elems, Elems](tc.elems, func(item Elem, index int) Elem {
+				return item * 2
+			})
+			assert.Equal(t, expected, actual)
+		})
+	}
+}
+
+func TestParMap(t *testing.T) {
+	type TestCase struct {
+		elems    Elems
+		expected Elems
+	}
+
+	testCases := []TestCase{
+		{Elems{2, 1, 8, 3}, Elems{4, 2, 16, 6}},
+		{Elems{1, 2, 3, 4, 5}, Elems{2, 4, 6, 8, 10}},
+		{Elems{4, 3, 2, 1, 8, 9}, Elems{8, 6, 4, 2, 16, 18}},
+	}
+
+	// Add larger test cases
+	for i := 0; i < 3; i++ {
+		testCases = append(testCases, TestCase{
+			elems:    MakeCollection(1_000, 0.0, func(index int) Elem { return Elem(index) }),
+			expected: MakeCollection(1_000, 0.0, func(index int) Elem { return Elem(index * 2) }),
+		})
+	}
+
+	for _, tc := range testCases {
+		t.Run("should return mapped slice", func(t *testing.T) {
+			expected := tc.expected
+			actual := parlo.ParMap[Elems, Elems](tc.elems, func(item Elem, index int) Elem {
+				return item * 2
+			})
+			assert.Equal(t, expected, actual)
+		})
+	}
+}

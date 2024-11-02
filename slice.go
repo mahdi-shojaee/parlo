@@ -1144,3 +1144,28 @@ func parMergeByMergeFunc[S ~[]E, E any](
 
 	wg.Wait()
 }
+
+// Map returns a new slice with the results of applying the given function to each element of the slice.
+func Map[S ~[]E, R ~[]T, E, T any](slice S, transform func(item E, index int) T) R {
+	result := make(R, 0, len(slice))
+
+	for i := 0; i < len(slice); i++ {
+		result = append(result, transform(slice[i], i))
+	}
+
+	return result
+}
+
+// ParMap returns a new slice with the results of applying the given function to each element of the slice in parallel.
+func ParMap[S ~[]E, R ~[]T, E, T any](slice S, transform func(item E, index int) T) R {
+	result := make(R, len(slice))
+
+	Do(slice, 0, func(chunk S, _, chunkStartIndex int) int {
+		for i, item := range chunk {
+			result[chunkStartIndex+i] = transform(item, chunkStartIndex+i)
+		}
+		return 0
+	})
+
+	return result
+}
