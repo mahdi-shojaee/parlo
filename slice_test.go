@@ -697,3 +697,122 @@ func TestParMap(t *testing.T) {
 		})
 	}
 }
+
+func TestReduce(t *testing.T) {
+	t.Run("sum numbers", func(t *testing.T) {
+		nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+		result := parlo.Reduce(nums, func(acc, item int, index int) int {
+			return acc + item
+		})
+		if result != 136 {
+			t.Errorf("expected sum to be 136, got %d", result)
+		}
+	})
+
+	t.Run("concatenate strings", func(t *testing.T) {
+		words := []string{
+			"the", "quick", "brown", "fox", "jumps", "over", "the", "lazy",
+			"dog", "while", "watching", "the", "sunset", "and", "eating", "dinner",
+		}
+		result := parlo.Reduce(words, func(acc, item string, index int) string {
+			if index == 0 {
+				return item
+			}
+			return acc + " " + item
+		})
+		expected := "the quick brown fox jumps over the lazy dog while watching the sunset and eating dinner"
+		if result != expected {
+			t.Errorf("expected '%s', got '%s'", expected, result)
+		}
+	})
+
+	t.Run("max value", func(t *testing.T) {
+		nums := []int{4, 2, 7, 1, 9, 3, 15, 6, 8, 12, 10, 5, 11, 14, 13, 16}
+		result := parlo.Reduce(nums, func(acc, item int, index int) int {
+			if item > acc {
+				return item
+			}
+			return acc
+		})
+		if result != 16 {
+			t.Errorf("expected max to be 16, got %d", result)
+		}
+	})
+
+	t.Run("single element", func(t *testing.T) {
+		nums := []int{42}
+		result := parlo.Reduce(nums, func(acc, item int, index int) int {
+			return acc + item
+		})
+		if result != 42 {
+			t.Errorf("expected 42, got %d", result)
+		}
+	})
+}
+
+func TestFold(t *testing.T) {
+	t.Run("sum numbers", func(t *testing.T) {
+		nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+		sum := parlo.Fold(nums, 0, func(acc, item, index int) int {
+			return acc + item
+		})
+		if sum != 136 {
+			t.Errorf("expected sum to be 136, got %d", sum)
+		}
+	})
+
+	t.Run("1 + sum numbers", func(t *testing.T) {
+		nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+		sum := parlo.Fold(
+			nums,
+			1,
+			func(acc, item, index int) int {
+				return acc + item
+			},
+		)
+		if sum != 137 {
+			t.Errorf("expected sum to be 137, got %d", sum)
+		}
+	})
+
+	t.Run("concatenate strings", func(t *testing.T) {
+		words := []string{
+			"the", "quick", "brown", "fox", "jumps", "over", "the", "lazy",
+			"dog", "while", "watching", "the", "sunset", "and", "eating", "dinner",
+		}
+		result := parlo.Fold(words, "", func(acc string, item string, index int) string {
+			if index == 0 {
+				return item
+			}
+			return acc + " " + item
+		})
+		expected := "the quick brown fox jumps over the lazy dog while watching the sunset and eating dinner"
+		if result != expected {
+			t.Errorf("expected '%s', got '%s'", expected, result)
+		}
+	})
+
+	t.Run("empty slice", func(t *testing.T) {
+		nums := []int{}
+		sum := parlo.Fold(nums, 0, func(acc, item, index int) int {
+			return acc + item
+		})
+		if sum != 0 {
+			t.Errorf("expected sum to be 0, got %d", sum)
+		}
+	})
+
+	t.Run("different types", func(t *testing.T) {
+		nums := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+		result := parlo.Fold(nums, []string{}, func(acc []string, item int, index int) []string {
+			return append(acc, fmt.Sprintf("num%d", item))
+		})
+		expected := []string{
+			"num1", "num2", "num3", "num4", "num5", "num6", "num7", "num8",
+			"num9", "num10", "num11", "num12", "num13", "num14", "num15", "num16",
+		}
+		if !slices.Equal(result, expected) {
+			t.Errorf("expected %v, got %v", expected, result)
+		}
+	})
+}

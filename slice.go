@@ -1169,3 +1169,25 @@ func ParMap[S ~[]E, R ~[]T, E, T any](slice S, transform func(item E, index int)
 
 	return result
 }
+
+// Reduce applies a reducer function to each element of the slice, accumulating the result.
+func Reduce[S ~[]E, E any](slice S, reducer func(acc, item E, index int) E) E {
+	acc := slice[0]
+
+	for i := 1; i < len(slice); i++ {
+		acc = reducer(acc, slice[i], i)
+	}
+
+	return acc
+}
+
+// Fold applies a reducer function to each element of the slice, accumulating the result starting with an initial value.
+func Fold[S ~[]E, E, R any](slice S, init R, reducer func(acc R, item E, index int) R) R {
+	acc := init
+
+	for i, item := range slice {
+		acc = reducer(acc, item, i)
+	}
+
+	return acc
+}
