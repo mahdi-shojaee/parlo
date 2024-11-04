@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=benchconfigs-schema.json
+# yaml-language-server: $schema=./benchconfigs-schema.json
 
 Min:
   sizes: [5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000]
@@ -231,3 +231,23 @@ Map:
       elemType: int
       elemAtIndex: index
       extraArgs: "func(item int, index int) int { return item }"
+
+FilterMap:
+  sizes: [5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000]
+  baseFuncName: parlo.FilterMap
+  funcName: parlo.ParFilterMap
+  immutable: true
+  typeArgs: "[]int, []int"
+  scenarios:
+    - description: No elements are accepted
+      elemType: int
+      elemAtIndex: index
+      extraArgs: "func(item int, index int) (int, bool) { return 0, false }"
+    - description: Half of the elements are accepted
+      elemType: int
+      elemAtIndex: index
+      extraArgs: "func(item int, index int) (int, bool) { if item % 2 == 0 { return item, true } else { return 0, false } }"
+    - description: All elements are accepted
+      elemType: int
+      elemAtIndex: index
+      extraArgs: "func(item int, index int) (int, bool) { return item, true }"

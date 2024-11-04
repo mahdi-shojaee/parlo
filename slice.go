@@ -25,7 +25,7 @@ type node[S ~[]E, E any] struct {
 // Filter applies a predicate function to each element of the input slice
 // and returns a new slice containing only the elements for which the predicate returns true.
 func Filter[S ~[]E, E any](slice S, predicate func(item E, index int) bool) S {
-	result := make(S, 0, len(slice))
+	result := make(S, 0)
 
 	for i := 0; i < len(slice); i++ {
 		if predicate(slice[i], i) {
@@ -39,8 +39,16 @@ func Filter[S ~[]E, E any](slice S, predicate func(item E, index int) bool) S {
 // ParFilter applies a predicate function to each element of the input slice in parallel
 // and returns a new slice containing only the elements for which the predicate returns true.
 func ParFilter[S ~[]E, E any](slice S, predicate func(item E, index int) bool) S {
-	chunkResults := Do(slice, 0, func(chunk S, _, _ int) S {
-		return Filter(chunk, predicate)
+	chunkResults := Do(slice, 0, func(chunk S, _, chunkStartIndex int) S {
+		r := make(S, 0)
+
+		for i := 0; i < len(chunk); i++ {
+			if predicate(chunk[i], chunkStartIndex+i) {
+				r = append(r, chunk[i])
+			}
+		}
+
+		return r
 	})
 
 	size := 0
@@ -1166,6 +1174,50 @@ func ParMap[S ~[]E, R ~[]T, E, T any](slice S, transform func(item E, index int)
 		}
 		return 0
 	})
+
+	return result
+}
+
+// FilterMap returns a new slice with the results of applying the given function to each element of the slice.
+// Only the items for which the function returns a value are included in the result.
+func FilterMap[S ~[]E, R ~[]T, E, T any](slice S, transform func(item E, index int) (T, bool)) R {
+	result := make(R, 0)
+
+	for i, item := range slice {
+		if t, ok := transform(item, i); ok {
+			result = append(result, t)
+		}
+	}
+
+	return result
+}
+
+// ParFilterMap returns a new slice with the results of applying the given function to each element of the slice in parallel.
+// Only the items for which the function returns a value are included in the result.
+func ParFilterMap[S ~[]E, R ~[]T, E, T any](slice S, transform func(item E, index int) (T, bool)) R {
+	results := Do(slice, 0, func(chunk S, _, chunkStartIndex int) R {
+		r := make(R, 0)
+
+		for i, item := range chunk {
+			if t, ok := transform(item, chunkStartIndex+i); ok {
+				r = append(r, t)
+			}
+		}
+
+		return r
+	})
+
+	size := 0
+
+	for _, r := range results {
+		size += len(r)
+	}
+
+	result := make(R, 0, size)
+
+	for _, r := range results {
+		result = append(result, r...)
+	}
 
 	return result
 }

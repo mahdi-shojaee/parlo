@@ -68,6 +68,15 @@ func TestParFilter(t *testing.T) {
 			assert.Equal(t, expected, actual)
 		})
 	}
+
+	t.Run("should return items with indices greater than 5", func(t *testing.T) {
+		elems := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+		expected := []int{7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+		actual := parlo.ParFilter(elems, func(item int, index int) bool {
+			return index > 5
+		})
+		assert.Equal(t, expected, actual)
+	})
 }
 
 func TestEqual(t *testing.T) {
@@ -814,5 +823,97 @@ func TestFold(t *testing.T) {
 		if !slices.Equal(result, expected) {
 			t.Errorf("expected %v, got %v", expected, result)
 		}
+	})
+}
+
+func TestFilterMap(t *testing.T) {
+	type TestCase struct {
+		elems    Elems
+		expected Elems
+	}
+
+	testCases := []TestCase{
+		{Elems{2, 1, 8, 3}, Elems{4, 16}},
+		{Elems{1, 2, 3, 4, 5}, Elems{4, 8}},
+		{Elems{4, 3, 2, 1, 8, 9}, Elems{8, 4, 16}},
+	}
+
+	// Add larger test cases
+	for i := 0; i < 3; i++ {
+		testCases = append(testCases, TestCase{
+			elems:    MakeCollection(200_000+100, 0.0, func(index int) Elem { return Elem(index) }),
+			expected: MakeCollection((200_000+100)/2, 0.0, func(index int) Elem { return Elem(index * 2 * 2) }),
+		})
+	}
+
+	for _, tc := range testCases {
+		t.Run("should return filtered and mapped slice", func(t *testing.T) {
+			expected := tc.expected
+			actual := parlo.FilterMap[Elems, Elems](tc.elems, func(item Elem, index int) (Elem, bool) {
+				if item%2 == 0 {
+					return item * 2, true
+				}
+				return 0, false
+			})
+			assert.Equal(t, expected, actual)
+		})
+	}
+
+	t.Run("should return even indices", func(t *testing.T) {
+		elems := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+		expected := []int{0, 2, 4, 6, 8, 10, 12, 14}
+		actual := parlo.ParFilterMap[[]int, []int](elems, func(item int, index int) (int, bool) {
+			if index%2 == 0 {
+				return index, true
+			}
+			return 0, false
+		})
+		assert.Equal(t, expected, actual)
+	})
+}
+
+func TestParFilterMap(t *testing.T) {
+	type TestCase struct {
+		elems    Elems
+		expected Elems
+	}
+
+	testCases := []TestCase{
+		{Elems{2, 1, 8, 3}, Elems{4, 16}},
+		{Elems{1, 2, 3, 4, 5}, Elems{4, 8}},
+		{Elems{4, 3, 2, 1, 8, 9}, Elems{8, 4, 16}},
+	}
+
+	// Add larger test cases
+	for i := 0; i < 3; i++ {
+		testCases = append(testCases, TestCase{
+			elems:    MakeCollection(200_000+100, 0.0, func(index int) Elem { return Elem(index) }),
+			expected: MakeCollection((200_000+100)/2, 0.0, func(index int) Elem { return Elem(index * 2 * 2) }),
+		})
+	}
+
+	for _, tc := range testCases {
+		t.Run("should return filtered and mapped slice", func(t *testing.T) {
+			expected := tc.expected
+			actual := parlo.ParFilterMap[Elems, Elems](tc.elems, func(item Elem, index int) (Elem, bool) {
+				if item%2 == 0 {
+					return item * 2, true
+				}
+				return 0, false
+			})
+			assert.Equal(t, expected, actual)
+		})
+	}
+
+	t.Run("should return items with indices greater than 5", func(t *testing.T) {
+		elems := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+		expected := []int{7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+		actual := parlo.ParFilterMap[[]int, []int](elems, func(item int, index int) (int, bool) {
+			if index > 5 {
+				return item, true
+			}
+			return 0, false
+		})
+		assert.Equal(t, expected, actual)
 	})
 }
